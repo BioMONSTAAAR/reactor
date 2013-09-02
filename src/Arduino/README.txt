@@ -1,0 +1,1 @@
+These are the programs that should run on the Arduino. They're going to have to be merged into one piece of code eventually.
