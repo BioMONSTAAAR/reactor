@@ -17,7 +17,7 @@ Overview:
 - two ways to recognize port type:
   active ports: continuously printing sensing records with sensor information (Type, 
   passive ports: receive specific commands and act accordingly
-- error reporting is also sent to cloud with consistent format!!
+- error reporting is also sent to cloud with consistent format
 '''
 ##############################
 #Set baud rate here:
