@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h2>Recent Data</h2>
+<br/>
+
+<b>Controller ID:</b> {{ config['controller_id'] }}<br/><br/>
+
+<table border="1" width="100%" style="float:center">
+    <tr>
+        <th>Timestamp</th>
+        <th>Data</th>
+    </tr>
+    {% for row in measurements %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[2] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
