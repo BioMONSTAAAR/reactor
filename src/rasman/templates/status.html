@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h2>Bioreactor Status</h2>
+<br/>
+<b>Controller ID:</b> {{ config['controller_id'] }}<br/>
+<p>Last updated: {{ timestamp }}</p>
+<br/>
+
+
+<table border="1" width="60%" style="float:center">
+    <tr>
+        <th>Sensors</th>
+        <th>Value</th>
+        <th>Units</th>
+    </tr>
+    {% for sensor in config['sensors'] %}
+        <tr>
+            <td> {{ config['labels'][loop.index -1] }} </td>
+            <td> {{ data[sensor] }} </td>
+            <td> {{ config['units'][loop.index - 1] }} </td>
+        </tr>
+    {% endfor %}
+</table>
+
+<br/>
+<table border="1" width="60%" style="float:center">
+    <tr>
+        <th>Motor Pumps</th>
+        <th>Status</th>
+        <th>Last Active</th>
+    </tr>
+    <tr>
+        <td>Mixer</td>
+        <td>on</td>
+        <td>running</td>
+    </tr>
+    <tr>
+        <td>Nutrient Feed</td>
+        <td>off</td>
+        <td>47 minutes ago</td>
+    </tr>
+    <tr>
+        <td>Harvester</td>
+        <td>off</td>
+        <td>3 hours ago</td>
+    </tr>
+</table>
+
+{% endblock %}
+
+
