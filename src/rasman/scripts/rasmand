@@ -2,9 +2,16 @@
 # /etc/init.d/rasmand
 
 ### BEGIN INIT INFO
-# Description:       This service is used to manage the Rasman web application
+# Provides:          rasmand
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Rasman webapp initscript
+# Description:       This service is used to manage the Rasman web application.
 ### END INIT INFO
 
+# Author: Ben Bongalon <ben.bongalon@gmail.com>
 
 case "$1" in 
     start)
