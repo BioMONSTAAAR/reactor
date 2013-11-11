@@ -204,6 +204,10 @@ Use the default password 'raspberry'. Then open a terminal console and run these
     
         -rwxr-xr-x 1 root root 436 Nov 10 22:34 rasmand 
 
+    Register the script to be run at start-up:
+
+        $ sudo update-rc.d rasmand defaults
+        
 6. Restart the Raspberry Pi.
 
         $ sudo shutdown -r now
@@ -218,9 +222,9 @@ Use the default password 'raspberry'. Then open a terminal console and run these
 Running Rasman on your computer (for Software Developers)
 ---------------------------------------------------------
 
-You can also run the app on your computer. This is the preferred approach  
-for development since it is faster and more efficient to edit/run/test code 
-without having to deploy each time on the Pi.
+You can also run the app on your computer. This is the preferred approach for 
+development since it is faster and more efficient to edit/run/test code without having 
+to deploy each time on the Pi.
 
 To run locally, do the following:
 
@@ -228,19 +232,19 @@ To run locally, do the following:
 
 2. Install the Flask package
 
-   pip install flask
+        $ pip install flask
    
 3. Open a terminal console and go to the rasman/ folder
 
-   cd rasman
+        $ cd rasman
    
 4. Run the app
 
-   python main.py
+        $ python main.py
    
 5. Fire up your browser and go to:
 
-   http://localhost:5000
+        http://localhost:5000
    
    Login as user 'admin', password is also 'admin'.
 
