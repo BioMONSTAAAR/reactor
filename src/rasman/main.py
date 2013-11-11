@@ -112,7 +112,7 @@ def purge_measurements(keepDays=30):
     #qparams = (keepDays,)
     #con.execute(cmd, qparams)
 
-def delete_measurements(self):
+def delete_measurements():
     """Delete all sensor measurements from the database"""
     con = get_db_connection()
     con.execute("DELETE FROM sensor_data")
@@ -212,4 +212,5 @@ def addmeas():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # set host to '0.0.0.0' to make the service externally available
+    app.run(debug=True, host='0.0.0.0', port=80)

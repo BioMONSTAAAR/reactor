@@ -1,0 +1,24 @@
+#!/bin/bash
+# /etc/init.d/rasmand
+
+### BEGIN INIT INFO
+# Description:       This service is used to manage the Rasman web application
+### END INIT INFO
+
+
+case "$1" in 
+    start)
+        echo "Starting Rasman"
+        python /home/pi/rasman/main.py &
+        ;;
+    stop)
+        echo "Stopping Rasman"
+        killall rasmand
+        ;;
+    *)
+        echo "Usage: /etc/init.d/rasmand start|stop"
+        exit 1
+        ;;
+esac
+
+exit 0
