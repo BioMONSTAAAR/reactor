@@ -1,8 +1,8 @@
 
 CREATE TABLE sensor_data (
-    timestamp TEXT,
-    controller_id TEXT,
-    data TEXT,
-    uploaded INTEGER
+    timestamp TEXT NOT NULL,
+    controller_id TEXT NOT NULL,
+    data TEXT NOT NULL,
+    uploaded INTEGER DEFAULT 0
 );
 
