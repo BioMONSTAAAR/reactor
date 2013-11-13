@@ -3,8 +3,20 @@
 
 <h2>Bioreactor Status</h2>
 <br/>
-<b>Controller ID:</b> {{ config['controller_id'] }}<br/>
-<p>Last updated: {{ timestamp }}</p>
+<p><b>{{ config['controller_id'] }}</b></p>
+{% if timestamp %}
+    <p>Measured on {{ timestamp }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    {% if uploaded %}
+        <p style="color:green">UPLOADED</p>
+    {% else %}
+        <p style="color:red">NOT UPLOADED</p>
+    {% endif %}
+    </p>
+    <br/>
+{% endif %}
+{% for message in get_flashed_messages() %}
+    <div class=flash>{{ message }}</div>
+{% endfor %}
 <br/>
 
 

@@ -2,21 +2,49 @@
 {% block body %}
 
 <h2>Reactor Setup</h2>
-
-    <form action="" method="post">
-        <h2>Column 1</h2>
-        <p>Controller Id <input type=text name=controllerId>
-        <p>Port <input type=text name=port>
-        <p>Baudrate <input type=text name=baudrate>
-
-        <br/><br/>
-        <h2>Column 2</h2>
-        <p>Controller Id <input type=text name=controllerId>
-        <p>Port <input type=text name=port>
-        <p>Baudrate <input type=text name=baudrate>
-        
-        <br/><br/>
+<br/>
+    <form onsubmit="alert('Save is not yet implemented'); return false;" >
+        <table>
+            <tr>
+                <td>Controller Id</td><td><input type=text name=controllerId></td>
+            </tr>
+            <tr>
+                <td>Port</td><td><input type=text name=port></td>
+            </tr>
+            <tr>
+                <td>Baudrate</td><td><input type=text name=baudrate></td>
+            </tr>
+        </table>
+        <br/>
         <p><input type=submit value=Save>
     </form>
+    <br/><br/><br/><hr/>
+    
+    <h2>Demo Controls</h2>
+    <br/>
+    <p><b>Add</b> simulates inserting the latest sensor measurements into the database.</p>
+    <p><b>Upload</b> pushes new measurements to the portal.</p>
+    <p><b>Purge</b> deletes data from the local database older than 30 days.</p>
+    </br>
+    <table>
+        <tr>
+            <td><form action="/api/addmeas" method="get">
+                    <input type="submit" value="Add">&nbsp;&nbsp;&nbsp;
+                </form>
+            </td>
+            <td><form action="/api/upload" method="get">
+                    <input type="submit" value="Upload">&nbsp;&nbsp;&nbsp;
+                </form>
+            </td>
+            <td><form action="/api/purge" method="get">
+                    <input type="submit" value="Purge">
+                </form>
+            </td>
+        </tr>
+    </table>
+    <br/>
+    {% for message in get_flashed_messages() %}
+        <div class=flash>{{ message }}</div>
+    {% endfor %}
 
 {% endblock %}

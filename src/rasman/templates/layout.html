@@ -2,12 +2,12 @@
 {% autoescape true %}
 <html lang="en">
 <head>
-    <title>Rasman</title>
+    <title>Rasman : the Raspberry Pi Manager</title>
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 </head>
 <div class=page>
     <div class=topbar>
-        <h1><img src="/static/images/monstaaar2.jpg" height="60" align="middle" alt="BioMONSTAAAR logo">BioMONSTAAAR Rasman (Rasberry Pi Manager)</h1>
+        <h1><img src="/static/images/monstaaar2.jpg" height="60" align="middle" alt="BioMONSTAAAR logo">Rasman (the Raspberry Pi Manager)</h1>
         {% if session['username'] %}
             <p align="right">Welcome {{ session['username'] }}! You can <a href="{{ url_for('logout') }}">sign out</a></p>
         {% else %}
@@ -47,14 +47,6 @@
             </ul>
         </div>
         <div class=content>
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                {% for message in messages %}
-                  <p>{{ message }}</p>
-                {% endfor %}
-              {% endif %}
-            {% endwith %}
-            <br/>
             {% block body %}{% endblock %}
         </div>
     </div>
