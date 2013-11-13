@@ -14,6 +14,7 @@ License as published by the Free Software Foundation
 
 from datetime import datetime
 import json
+import os
 import sqlite3
 
 from flask import Flask, request, session, g, redirect, url_for, \
@@ -27,7 +28,7 @@ SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'admin'
 
-DEFAULT_DATABASE = 'rasman.db'
+DEFAULT_DATABASE = os.path.join(os.path.dirname(__file__), 'rasman.db')
 DEFAULT_CONFIG = {
     'controller_id' : 'biomonSF1:adru_1',
     'port': 'com1',
@@ -85,7 +86,7 @@ def get_saved_measurements(limit=25, controller_id=None):
     Returns:
         array of measurements, most recent first 
     """
-    cmd = "SELECT timestamp,controller_id,data FROM sensor_data"
+    cmd = "SELECT timestamp,controller_id,data,uploaded FROM sensor_data"
     qparams = []
     if controller_id:
         cmd += " WHERE controller_id = ?"
@@ -117,6 +118,10 @@ def delete_measurements():
     con = get_db_connection()
     con.execute("DELETE FROM sensor_data")
     cnn.commit()
+
+def upload_measurements():
+    """Upload new measurements to the cloud"""
+    pass
 
 
 ###############################################################################
@@ -166,16 +171,18 @@ def status():
     config = DEFAULT_CONFIG
     meas = get_saved_measurements(limit=1)
     if meas:
-        timestamp, controller_id, data = meas[0]
+        timestamp, controller_id, data, uploaded = meas[0]
         data = json.loads(data)
     else:
         flash("No sensor data found in database!")
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = None
         data = {}
         for sensor in config['sensors']:
             data[sensor] = None
+        uploaded = None
     app.logger.info(data)
-    return render_template("status.html", config=config, timestamp=timestamp, data=data)
+    return render_template("status.html", config=config, timestamp=timestamp, data=data,
+                            uploaded=uploaded)
 
 @app.route("/recentdata/")
 def recentdata():
@@ -193,13 +200,6 @@ def contact():
 #    Web services - used by cron job
 ###############################################################################
 
-@app.route("/api/purge/")
-def purge():
-    """Delete old sensor measurements in the database"""
-    app.logger.info("API: purging database...")
-    purge_measurements(keepDays=30)
-    return jsonify(status='OK')
-
 @app.route("/api/addmeas/")
 def addmeas():
     """Read the current sensor measurements and insert to the database"""
@@ -208,7 +208,25 @@ def addmeas():
     ras = Rasman(config)
     meas = ras.read_all_sensors()
     save_measurement(config['controller_id'], json.dumps(meas))
-    return jsonify(status='OK', meas=meas)
+    # @todo: Flash status message
+    flash('New sensor measurements have been saved locally')
+    return setup()
+
+@app.route("/api/upload/", methods=['GET', 'POST'])
+def upload():
+    """Upload new measurements to the cloud"""
+    app.logger.info("API: uploading new measurements...")
+    upload_measurements()
+    flash('New measurements have been uploaded')
+    return setup()
+
+@app.route("/api/purge/")
+def purge():
+    """Delete old sensor measurements in the database"""
+    app.logger.info("API: purging database...")
+    purge_measurements(keepDays=30)
+    flash('Data purging has been completed')
+    return setup()
 
 
 if __name__ == "__main__":
