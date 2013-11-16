@@ -9,9 +9,9 @@
     <div class=topbar>
         <h1><img src="/static/images/monstaaar2.jpg" height="60" align="middle" alt="BioMONSTAAAR logo">Rasman (the Raspberry Pi Manager)</h1>
         {% if session['username'] %}
-            <p align="right">Welcome {{ session['username'] }}! You can <a href="{{ url_for('logout') }}">sign out</a></p>
+            <p align="right">Welcome {{ session['username'] }}! You can <a href="{{ url_for('logout') }}">logout</a></p>
         {% else %}
-            <p> &nbsp; </p>
+            <p align="right"> You are not logged in. <a href="{{ url_for('login') }}">Login</a></p>
         {% endif %}
     </div>
 

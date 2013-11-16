@@ -3,7 +3,7 @@
 
 <h2>Reactor Setup</h2>
 <br/>
-    <form onsubmit="alert('Save is not yet implemented'); return false;" >
+    <form onsubmit="alert('Saving the system configuration is not yet implemented'); return false;" >
         <table>
             <tr>
                 <td>Controller Id</td><td><input type=text name=controllerId></td>
@@ -25,19 +25,25 @@
     <p><b>Add</b> simulates inserting the latest sensor measurements into the database.</p>
     <p><b>Upload</b> pushes new measurements to the portal.</p>
     <p><b>Purge</b> deletes data from the local database older than 30 days.</p>
+    <p><b>Delete All</b> wipes all measurements in the local database.</p>
     </br>
     <table>
         <tr>
-            <td><form action="/api/addmeas" method="get">
+            <td><form action="/demo/addmeas/" method="get">
                     <input type="submit" value="Add">&nbsp;&nbsp;&nbsp;
                 </form>
             </td>
-            <td><form action="/api/upload" method="get">
+            <td><form action="/demo/upload/" method="get">
                     <input type="submit" value="Upload">&nbsp;&nbsp;&nbsp;
                 </form>
             </td>
-            <td><form action="/api/purge" method="get">
-                    <input type="submit" value="Purge">
+            <td><form action="/demo/purge/" method="get">
+                    <input type="submit" value="Purge">&nbsp;&nbsp;&nbsp;
+                </form>
+            </td>
+            <td><form action="/demo/deleteall/" method="get" 
+                      onsubmit="return confirm('Do you really want to wipe the database?');">
+                    <input type="submit" value="Delete All">
                 </form>
             </td>
         </tr>
