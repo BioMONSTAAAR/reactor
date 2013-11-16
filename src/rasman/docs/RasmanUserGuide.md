@@ -156,9 +156,9 @@ Setting up the Raspberry Pi
 Installing Rasman
 -----------------
 
-Login to the Raspberry Pi.
+From your laptop or desktop computer, remotely login to the Raspberry Pi.
 
-        $ ssh pi@rasman.local
+        MyLaptop> ssh pi@rasman.local
 
 Use the default password 'raspberry'. Then open a terminal console and run these commands:
 
@@ -212,11 +212,29 @@ Use the default password 'raspberry'. Then open a terminal console and run these
 
         $ sudo shutdown -r now
 
-7. You should now be able to access Rasman. From your computer, point the browser to:
+7. You should now be able to access Rasman. From your laptop or desktop computer, 
+   point the browser to:
 
         http://rasman.local/
 
-    Enjoy!
+8. Finally, set up the Rasman to read the sensors every 5 minutes, save the data 
+   to the local database and upload the data to the cloud.
+   
+   Remotely login to the Raspberry Pi:
+   
+        MyLaptop> ssh pi@rasman.local
+    
+   After you are logged in, type this command:
+   
+        $ crontab -e
+
+   Insert the following line into the text.
+   
+        */5 * * * *   curl "http://localhost/api/addmeas/"
+
+   Save the file by hitting Control-X then type 'Y'.
+   
+Enjoy!
 
 
 Running Rasman on your computer (for Software Developers)

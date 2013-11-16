@@ -113,11 +113,11 @@ def purge_measurements(keepDays=30):
     #qparams = (keepDays,)
     #con.execute(cmd, qparams)
 
-def delete_measurements():
+def delete_all_measurements():
     """Delete all sensor measurements from the database"""
     con = get_db_connection()
     con.execute("DELETE FROM sensor_data")
-    cnn.commit()
+    con.commit()
 
 def upload_measurements():
     """Upload new measurements to the cloud"""
@@ -130,10 +130,13 @@ def upload_measurements():
 
 @app.route("/")
 def home():
+    return render_template("index.html")
+"""
     if 'logged_in' in session and session['logged_in']:
         return render_template("index.html")
     else:
         return redirect(url_for('login'))
+"""
 
 @app.route("/login/", methods=['GET', 'POST'])
 def login():
@@ -158,7 +161,8 @@ def logout():
 
 @app.route("/setup/")
 def setup():
-    if 'logged_in' in session and session['logged_in']:
+    #if 'logged_in' in session and session['logged_in']:
+    if True:
         app.logger.info("In setup page...")
         return render_template("setup.html")
     else:
@@ -197,36 +201,71 @@ def contact():
     return render_template("contact.html")
 
 ###############################################################################
+#    Web services - for demo mode
+###############################################################################
+
+@app.route("/demo/addmeas/")
+def addmeas():
+    """Read the current sensor measurements and insert to the database"""
+    api_addmeas()
+    flash('New sensor measurements have been saved locally')
+    return setup()
+
+@app.route("/demo/upload/")
+def upload():
+    """Upload new measurements to the cloud"""
+    api_upload()
+    flash('New measurements have been uploaded')
+    return setup()
+
+@app.route("/demo/purge/")
+def purge():
+    """Delete sensor measurements in the database older than N days"""
+    api_purge()
+    flash('Data purging has been completed')
+    return setup()
+
+@app.route("/demo/deleteall/")
+def deleteall():
+    """Upload new measurements to the cloud"""
+    api_deleteall()
+    flash('All measurements have been deleted')
+    return setup()
+
+###############################################################################
 #    Web services - used by cron job
 ###############################################################################
 
 @app.route("/api/addmeas/")
-def addmeas():
+def api_addmeas():
     """Read the current sensor measurements and insert to the database"""
     app.logger.info("API: adding current sensor measurements to the database...")
     config = DEFAULT_CONFIG
     ras = Rasman(config)
     meas = ras.read_all_sensors()
     save_measurement(config['controller_id'], json.dumps(meas))
-    # @todo: Flash status message
-    flash('New sensor measurements have been saved locally')
-    return setup()
+    return jsonify(status='OK', meas=meas)
 
-@app.route("/api/upload/", methods=['GET', 'POST'])
-def upload():
+@app.route("/api/upload/")
+def api_upload():
     """Upload new measurements to the cloud"""
     app.logger.info("API: uploading new measurements...")
     upload_measurements()
-    flash('New measurements have been uploaded')
-    return setup()
+    return jsonify(status='OK')
 
 @app.route("/api/purge/")
-def purge():
-    """Delete old sensor measurements in the database"""
+def api_purge():
+    """Delete sensor measurements in the database older than N days"""
     app.logger.info("API: purging database...")
     purge_measurements(keepDays=30)
-    flash('Data purging has been completed')
-    return setup()
+    return jsonify(status='OK')
+
+@app.route("/api/deleteall/")
+def api_deleteall():
+    """Delete all sensor measurements in the database"""
+    app.logger.info("API: deleting all data database...")
+    delete_all_measurements()
+    return jsonify(status='OK')
 
 
 if __name__ == "__main__":
