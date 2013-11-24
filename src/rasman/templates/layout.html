@@ -7,12 +7,13 @@
 </head>
 <div class=page>
     <div class=topbar>
-        <h1><img src="/static/images/monstaaar2.jpg" height="60" align="middle" alt="BioMONSTAAAR logo">Rasman (the Raspberry Pi Manager)</h1>
+        <h2><img src="/static/images/rasman_logo.png" height="50" align="bottom" alt="Rasman logo"></h2>
         {% if session['username'] %}
             <p align="right">Welcome {{ session['username'] }}! You can <a href="{{ url_for('logout') }}">logout</a></p>
         {% else %}
-            <p align="right"> You are not logged in. <a href="{{ url_for('login') }}">Login</a></p>
+            <p style="font-size: 0.8em; padding-bottom: 5px;" align="right"> You are not logged in. <a href="{{ url_for('login') }}">Login</a></p>
         {% endif %}
+        <hr/>
     </div>
 
 
