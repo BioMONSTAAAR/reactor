@@ -4,12 +4,28 @@
 <h2>Home</h2>
 <br/>
 
-<p><i><b>Rasman</b> (Raspberry Pi Manager)</i> is an open-source software for the Raspberry Pi that 
-lets you control the BioMonstaaar algae bioreactor, upload your bioreactor's data to 
-the BioMonstaar portal and share data with others.
-</p>
-<br/><p>See the 
-<a href="https://github.com/BioMONSTAAAR/reactor/blob/master/src/rasman/docs/RasmanUserGuide.md">User Guide</a> 
-for more info.</p>
+<p><b>Rasman</b> is an open-source Web app that runs on the Raspberry Pi and lets you 
+control the BioMonstaaar algae photobioreactor (PBR) from any browser.</p>
+
+<br/><h3>Features</h3>
+<ul>
+    <li>Web user interface provides full control of the bioreactor</li>
+    <li>Status page shows up-to-date sensor readings and motor status</li>
+    <li>view historical data up to 30 days old (configurable)</li>
+    <li>automatically uploads data to the BioMonstaar portal</li>
+    <li>runs in <i>headless</i> mode.. no keyboard, mouse or monitor needed after initial setup</li>
+</ul>
+
+<br/><h3>Tech Details for Geeks</h3>
+<ul>
+    <li>small footprint, < 400 lines of Python code.. loads and runs quickly on a Raspberry Pi</li>
+    <li>uses the <a href="http://flask.pocoo.org/">Flask</a> web microframework</li>
+    <li>interactive plot using <a href="http://dygraphs.com">Dygraphs</a>
+    <li>sqlite3 database</li> 
+</ul>
+
+<br/><h3>More Info</h3>
+<p>Read the online 
+<a href="https://github.com/BioMONSTAAAR/reactor/blob/master/src/rasman/docs/RasmanUserGuide.md">User Guide</a></p>
 
 {% endblock %}
