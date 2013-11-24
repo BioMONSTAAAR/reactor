@@ -1,7 +1,7 @@
 
-import fabric
 import os
 from fabric.api import run, sudo, env, local, cd, lcd, put
+from fabric.operations import prompt
 
 env.user = 'pi'
 env.hosts = ['rasman.local']
@@ -19,9 +19,14 @@ def clean():
           
 def zip():
     """Package the source tree"""
+    ans = prompt("Include rasman database (y/n)?", default='n').lower()
+    if ans == 'y':
+        cmd = "tar cvfz rasman.tgz rasman/"
+    else:
+        cmd = "tar cvfz rasman.tgz --exclude rasman.db rasman/"
     clean()
     with lcd(".."):
-        local("tar cvfz rasman.tgz rasman/")
+        local(cmd)
 
 def deploy():
     """Install and deploy on the Raspberry Pi"""
