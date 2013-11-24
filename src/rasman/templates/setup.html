@@ -1,28 +1,69 @@
 {% extends "layout.html" %}
 {% block body %}
 
+{% if session['username'] %}
+    <p>&nbsp;</p>
+{% else %}
+    <p style="font-size: 1em;"><i>You must be logged in to make any changes.</i></p>
+{% endif %}
+<br/>
+
 <h2>Reactor Setup</h2>
 <br/>
     <form onsubmit="alert('Saving the system configuration is not yet implemented'); return false;" >
         <table>
             <tr>
-                <td>Controller Id</td><td><input type=text name=controllerId></td>
+                <td style="text-align:right;">Controller Id</td>
+                <td style="text-align:left; padding-left: 10px;">
+                    <input type=text name=controllerId>
+                </td>
             </tr>
             <tr>
-                <td>Port</td><td><input type=text name=port></td>
+                <td style="text-align:right;">Port</td>
+                <td style="text-align:left; padding-left: 10px;">
+                    <select id="port" name="port">
+                        <option selected="selected">COM1</option>
+                        <option>COM2</option>
+                        <option>COM3</option>
+                        <option>COM4</option>
+                    </select>
+                </td>
             </tr>
             <tr>
-                <td>Baudrate</td><td><input type=text name=baudrate></td>
+                <td style="text-align:right;">Baudrate</td>
+                <td style="text-align:left; padding-left: 10px;">
+                    <select id="baudrate" name="baudrate">
+                        <option selected="selected">115200</option>
+                        <option>9600</option>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:right;">Read sensors</td>
+                <td style="text-align:left; padding-left: 10px;">
+                    every
+                    <select id="readrate" name="readrate">
+                        <option selected="selected">1 minute</option>
+                        <option>5 minutes</option>
+                        <option>10 minutes</option>
+                        <option>15 minutes</option>
+                        <option>30 minutes</option>
+                        <option>1 hour</option>
+                </td>
             </tr>
         </table>
         <br/>
-        <p><input type=submit value=Save>
+        {% if session['username'] %}
+            <p><input type=submit value=Save></p>
+        {% else %}
+            <p><input type=submit value=Save disabled></p>
+        {% endif %}
     </form>
-    <br/><br/><br/><hr/>
+    <br/><br/><hr/>
     
     <h2>Demo Controls</h2>
     <br/>
-    <p><b>Add</b> simulates inserting the latest sensor measurements into the database.</p>
+    <p><b>Read </b> simulates reading the current sensor values and saving them 
+             on Rasman's database.</p>
     <p><b>Upload</b> pushes new measurements to the portal.</p>
     <p><b>Purge</b> deletes data from the local database older than 30 days.</p>
     <p><b>Delete All</b> wipes all measurements in the local database.</p>
@@ -30,25 +71,44 @@
     <table>
         <tr>
             <td><form action="/demo/addmeas/" method="get">
-                    <input type="submit" value="Add">&nbsp;&nbsp;&nbsp;
+                    {% if session['username'] %}
+                        <p><input type=submit value="Read"></p>
+                    {% else %}
+                        <p><input type=submit value="Read" disabled></p>
+                    {% endif %}                    
+                    &nbsp;&nbsp;&nbsp;
                 </form>
             </td>
             <td><form action="/demo/upload/" method="get">
-                    <input type="submit" value="Upload">&nbsp;&nbsp;&nbsp;
+                    {% if session['username'] %}
+                        <p><input type=submit value="Upload"></p>
+                    {% else %}
+                        <p><input type=submit value="Upload" disabled></p>
+                    {% endif %}                    
+                    &nbsp;&nbsp;&nbsp;
                 </form>
             </td>
             <td><form action="/demo/purge/" method="get">
-                    <input type="submit" value="Purge">&nbsp;&nbsp;&nbsp;
+                    {% if session['username'] %}
+                        <p><input type=submit value="Purge"></p>
+                    {% else %}
+                        <p><input type=submit value="Purge" disabled></p>
+                    {% endif %}                    
+                    &nbsp;&nbsp;&nbsp;
                 </form>
             </td>
             <td><form action="/demo/deleteall/" method="get" 
                       onsubmit="return confirm('Do you really want to wipe the database?');">
-                    <input type="submit" value="Delete All">
+                    {% if session['username'] %}
+                        <p><input type=submit value="Clear Database"></p>
+                    {% else %}
+                        <p><input type=submit value="Clear Database" disabled></p>
+                    {% endif %}                    
+                    &nbsp;&nbsp;&nbsp;
                 </form>
             </td>
         </tr>
     </table>
-    <br/>
     {% for message in get_flashed_messages() %}
         <div class=flash>{{ message }}</div>
     {% endfor %}
