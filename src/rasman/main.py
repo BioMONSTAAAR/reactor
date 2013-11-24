@@ -15,6 +15,7 @@ License as published by the Free Software Foundation
 from datetime import datetime
 import json
 import os
+import re
 import sqlite3
 
 from flask import Flask, request, session, g, redirect, url_for, \
@@ -66,12 +67,12 @@ def save_measurement(controller_id, data):
     """
     cmd = ("INSERT INTO sensor_data (timestamp,controller_id,data) "
            "VALUES(strftime('%Y-%m-%d %H:%M:%f','now'), ?, ?)")
-    qparams = (controller_id, data,)
+    qvalues = (controller_id, data,)
     con = get_db_connection()
-    con.execute(cmd, qparams)
+    con.execute(cmd, qvalues)
     con.commit()
     
-def get_saved_measurements(limit=25, controller_id=None):
+def get_saved_measurements(limit=25, controller_id=None, for_upload=False):
     """Retrieve sensor measurements from the database
     
        Each measurement is a tuple with the following elements:
@@ -86,17 +87,30 @@ def get_saved_measurements(limit=25, controller_id=None):
     Returns:
         array of measurements, most recent first 
     """
-    cmd = "SELECT timestamp,controller_id,data,uploaded FROM sensor_data"
-    qparams = []
-    if controller_id:
-        cmd += " WHERE controller_id = ?"
-        qparams.append(controller_id)
+    qvalues = []
+    if for_upload:
+        cmd = "SELECT timestamp,data FROM sensor_data"
+        qfields = []
+        if controller_id:
+            qfields.append('controller_id')
+            qvalues.append(controller_id)
+        if for_upload:
+            qfields.append('uploaded')
+            qvalues.append(0)
+        if qfields:
+            cmd += " WHERE " + " AND ".join(["%s = ?" % f for f in qfields]) 
+    else:
+        cmd = "SELECT timestamp,controller_id,data,uploaded FROM sensor_data"
+        if controller_id:
+            cmd += " WHERE controller_id = ?"
+            qvalues.append(controller_id)
     cmd += " ORDER BY timestamp DESC"
     if limit:
         cmd += " LIMIT ?"
-        qparams.append(limit)
+        qvalues.append(limit)
+    app.logger.debug("In get_saved_measurements().. query is: %s" % cmd)
     con = get_db_connection()
-    return [row for row in con.execute(cmd, qparams)]
+    return [row for row in con.execute(cmd, qvalues)]
 
 def purge_measurements(keepDays=30):
     """Delete sensor measurements from the database older than the specified day
@@ -110,8 +124,8 @@ def purge_measurements(keepDays=30):
     con.commit()
     # TODO(Ben): send keepDays a query parameter.. I can't get this to work
     #cmd = "DELETE FROM sensor_data WHERE timestamp < date('now','-? day')"
-    #qparams = (keepDays,)
-    #con.execute(cmd, qparams)
+    #qvalues = (keepDays,)
+    #con.execute(cmd, qvalues)
 
 def delete_all_measurements():
     """Delete all sensor measurements from the database"""
@@ -192,8 +206,8 @@ def status():
 def recentdata():
     app.logger.info("In Recent Data page...")
     config = DEFAULT_CONFIG
-    meas = get_saved_measurements()
-    return render_template("recentdata.html", config=config, measurements=meas)
+    #meas = get_saved_measurements()
+    return render_template("recentdata.html", config=config)
 
 @app.route("/contact/")
 def contact():
@@ -236,6 +250,22 @@ def deleteall():
 #    Web services - used by cron job
 ###############################################################################
 
+def _convert_jsondata_to_csv(jsonstring, sensors):
+    data = json.loads(jsonstring)        
+    return ",".join( [str(data.get(s) or '') for s in sensors] )
+    
+@app.route("/api/history/")
+def api_history():
+    sensors = DEFAULT_CONFIG['sensors']
+    meas = get_saved_measurements(limit=12*24*2, for_upload=True)   # 2-day graph
+    headers = 'Timestamp,' + ','.join(sensors) + '\n'
+    mycsv = headers
+    for m in meas:
+        timestamp,jsonstring = m
+        timestamp = re.sub(r'\.\d\d\d$', '', timestamp)     # remove millisecs 
+        mycsv += "%s,%s\n" % (timestamp, _convert_jsondata_to_csv(jsonstring, sensors))
+    return mycsv
+
 @app.route("/api/addmeas/")
 def api_addmeas():
     """Read the current sensor measurements and insert to the database"""
@@ -270,4 +300,4 @@ def api_deleteall():
 
 if __name__ == "__main__":
     # set host to '0.0.0.0' to make the service externally available
-    app.run(debug=True, host='0.0.0.0', port=80)
+    app.run(debug=False, host='0.0.0.0', port=80)
