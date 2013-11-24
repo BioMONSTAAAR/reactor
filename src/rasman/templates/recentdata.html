@@ -1,15 +1,55 @@
+<!DOCTYPE html>
+<html>
 {% extends "layout.html" %}
 {% block body %}
 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://dygraphs.com/dygraph-combined.js"></script>
+
+<br/><br/>
+<div id="wrapper">
+    <div id="chartdiv" style="float:left;"></div>
+    <div id="legenddiv" style="float:left; padding: 80px 0px 0px 20px; font-size: 80%"></div>
+</div>
+
+<script>
+function fakedata() {
+  var r = "date,line,another line,sine wave\n";
+  for (var i = 1; i <= 31; i++) {
+    r += "2006/10/" + (i > 10 ? i : "0" + i);
+    r += "," + 10 * (8 * i);
+    r += "," + 10 * (250 - 8 * i);
+    r += "," + 10 * (125 + 125 * Math.sin(0.3 * i));
+    r += "\n";
+  }
+  return r;
+}
+
+
+// To construct a dygraph, pass in a div, the data and options.
+// legend: 'always' makes the legend show up, even when the mouse isn't over the chart.
+// To show fake data:
+//     g = new Dygraph(document.getElementById("chartdiv"), fakedata, {} );
+g = new Dygraph(document.getElementById("chartdiv"), "/api/history/", {
+  title: 'Bioreactor History',
+  width: 560,
+  stackedGraph: false,
+  legend: 'always', 
+  labelsDiv: 'legenddiv',
+  labelsSeparateLines: true,
+});
+</script>
+
+<!--
 <h2>Recent Data</h2>
 <br/>
 
 <b>Controller ID:</b> {{ config['controller_id'] }}<br/><br/>
 
-<table border="1" width="100%" style="float:center">
+<table border="1" width="100%" style="float: center; font-size: 0.8em;">
     <tr>
         <th>Timestamp</th>
-        <th>Data</th>
+        <th>Sensor Data</th>
         <th>Uploaded</th>
     </tr>
     {% for row in measurements %}
@@ -20,5 +60,6 @@
     </tr>
     {% endfor %}
 </table>
+-->
 
 {% endblock %}
