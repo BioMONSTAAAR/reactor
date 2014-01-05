@@ -1,24 +1,27 @@
-function fakedata() {
-  var r = "date,line,another line,sine wave\n";
-  for (var i = 1; i <= 31; i++) {
-    r += "2006/10/" + (i > 10 ? i : "0" + i);
-    r += "," + 10 * (8 * i);
-    r += "," + 10 * (250 - 8 * i);
-    r += "," + 10 * (125 + 125 * Math.sin(0.3 * i));
-    r += "\n";
-  }
-  return r;
-}
-
-
-// To show fake data:
-//     g = new Dygraph(document.getElementById("chartdiv"), fakedata, {} );
-var g = new Dygraph(document.getElementById("chartdiv"), "/api/history/", {
-  title: 'Bioreactor History',
-  width: 560,
-  stackedGraph: false,
-  legend: 'always', 
-  labelsDiv: 'legenddiv',
-  labelsSeparateLines: true,
+var allHistory = {};
+var getCSV = $.get('/api/history/', function processCSV(data){
+    var lines = data.split(/\n+/).filter(function(x){
+        return /^\w/.test(x);
+    });
+    var headers = lines.shift();
+    var labels = headers.split(/,/);
+    labels.forEach(function(label){
+        allHistory[label] = [];
+    });
+    for (var i = 0; i<lines.length; i++){
+        var items = lines[i].split(/,/);
+        if (items.length != labels.length){
+            throw "malformed CSV file";
+        };
+        for (var k = 0; k<items.length; k++){
+            var item = items[k];
+            var label = labels[k];
+            if (label !== 'Timestamp'){
+                item = parseFloat(item);
+            };
+            allHistory[label].push(item);
+        };
+    };
+    console.log(allHistory);
 });
 
