@@ -1,7 +1,7 @@
 var allHistory = {};
 var getCSV = $.get('/api/history/', function processCSV(data){
     var lines = data.split(/\n+/).filter(function(x){
-        return /^\w/.test(x);
+        return /^\w/.test(x);//avoid blank lines
     });
     var headers = lines.shift();
     var labels = headers.split(/,/);
@@ -24,4 +24,5 @@ var getCSV = $.get('/api/history/', function processCSV(data){
     };
     console.log(allHistory);
 });
+
 
