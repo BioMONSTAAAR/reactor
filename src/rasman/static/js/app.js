@@ -11,7 +11,7 @@ var History = {
             throw "Cannot generate CSV for nonexistent data stream.";
         };
 
-        var lines = [headers.join(',') + '\n'];
+        var lines = [headers.join(',')];
         for (var i = 0; i<this.Timestamp.length; i++){
             var data = [];
             for (var k = 0; k<headers.length; k++){
