@@ -300,4 +300,4 @@ def api_deleteall():
 
 if __name__ == "__main__":
     # set host to '0.0.0.0' to make the service externally available
-    app.run(debug=False, host='0.0.0.0', port=80)
+    app.run(debug=False, host='0.0.0.0', port=3000)
