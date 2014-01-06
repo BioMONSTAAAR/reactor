@@ -1,5 +1,25 @@
 var History = {
-    makeCSV: function(args){
+    drawGraph: function drawGraph(label, element){
+        var container = document.createElement('div');
+        container.id = label + 'Container';
+        container.classList.add('chartContainer');
+
+        var chartDiv = document.createElement('div');
+        chartDiv.id = label + 'Chart';
+        chartDiv.classList.add('chart');
+
+        container.appendChild(chartDiv);
+        element.appendChild(container);
+
+        var graph = new Dygraph(chartDiv, History.makeCSV(label), {
+            title: label,//will need prettier titles eventually
+            width: 560,
+            stackedGraph: false,
+            labelsSeparateLines: true,
+        });
+       
+    },
+    makeCSV: function makeCSV(args){
         //hardcoding the assumption that time is always the x axis
         var that = this;
         var headers = Array.prototype.slice.call(arguments);
@@ -25,7 +45,7 @@ var History = {
 
 var getCSV = $.get('/api/history/', function processCSV(data){
     var lines = data.split(/\n+/).filter(function(x){
-        return /^\w/.test(x);//avoid blank lines
+        return /^[-\w]/.test(x);//avoid blank lines, allow negative numbers
     });
     var headers = lines.shift();
     var labels = headers.split(/,/);
@@ -50,38 +70,10 @@ var getCSV = $.get('/api/history/', function processCSV(data){
     var plots = document.getElementById('plots');
     for (var i = 1; i<labels.length; i++){
         //timestamp always included implicitly
-        drawGraph(labels[i]);
+        History.drawGraph(labels[i], plots);
     };
-    function drawGraph(label){
-        var container = document.createElement('div');
-        container.id = label + 'Container';
-        container.classList.add('chartContainer');
-
-        var chartDiv = document.createElement('div');
-        chartDiv.id = label + 'Chart';
-        chartDiv.classList.add('chart');
-
-//        var legendDiv = document.createElement('div');
-//        legendDiv.id = label + 'Legend';
-//        legendDiv.classList.add('legend');
-
-        container.appendChild(chartDiv);
- //       container.appendChild(legendDiv);
-        plots.appendChild(container);
-
-        var graph = new Dygraph(chartDiv, History.makeCSV(label), {
-            title: label,//will need prettier titles eventually
-            width: 560,
-            stackedGraph: false,
-//            legend: 'always',
-//            labelsDiv: legendDiv.id,
-            labelsSeparateLines: true,
-        });
-    };
-}).fail(function(){
-    //TO DO
-    console.log('Unable to retrieve data from server.');
 });
 
-
-
+getCSV.fail(function(){
+    $('#plots').text('Unable to retrieve data from server.');
+});
