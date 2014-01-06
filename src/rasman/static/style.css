@@ -19,7 +19,7 @@ h1  { border-bottom: 2px solid #eee; }
 h2  { font-size: 1.2em; }
 h3  { font-size: 1em; }
 
-.page  { margin: 2em auto; width: 60em; height: 40em; border: 5px solid #ccc;
+.page  { margin: 2em auto; width: 60em; height: 110em; border: 5px solid #ccc;
          padding: 0.8em; background: white; }
 
 .entries  { list-style: none; margin: 0; padding: 0; }
@@ -148,3 +148,12 @@ h3  { font-size: 1em; }
 	text-shadow:1px 1px 0 #d244a6;
 }
 
+/* PLOT RELATED */
+.chart {
+    float: left;
+}
+.legend {
+    float: left;
+    padding: 80px 0px 0px 20px;
+    font-size: 80%;
+}

@@ -46,7 +46,42 @@ var getCSV = $.get('/api/history/', function processCSV(data){
             History[label].push(item);
         };
     };
-    console.log(History);
+
+    var plots = document.getElementById('plots');
+    for (var i = 1; i<labels.length; i++){
+        //timestamp always included implicitly
+        drawGraph(labels[i]);
+    };
+    function drawGraph(label){
+        var container = document.createElement('div');
+        container.id = label + 'Container';
+        container.classList.add('chartContainer');
+
+        var chartDiv = document.createElement('div');
+        chartDiv.id = label + 'Chart';
+        chartDiv.classList.add('chart');
+
+//        var legendDiv = document.createElement('div');
+//        legendDiv.id = label + 'Legend';
+//        legendDiv.classList.add('legend');
+
+        container.appendChild(chartDiv);
+ //       container.appendChild(legendDiv);
+        plots.appendChild(container);
+
+        var graph = new Dygraph(chartDiv, History.makeCSV(label), {
+            title: label,//will need prettier titles eventually
+            width: 560,
+            stackedGraph: false,
+//            legend: 'always',
+//            labelsDiv: legendDiv.id,
+            labelsSeparateLines: true,
+        });
+    };
+}).fail(function(){
+    //TO DO
+    console.log('Unable to retrieve data from server.');
 });
+
 
 
