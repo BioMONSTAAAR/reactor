@@ -149,11 +149,22 @@ h3  { font-size: 1em; }
 }
 
 /* PLOT RELATED */
-.chart {
+.chartContainer {
+    float: left;
+    width: 850px;
+}
+.chartContainer div {
     float: left;
 }
-.legend {
-    float: left;
-    padding: 80px 0px 0px 20px;
-    font-size: 80%;
+.summaryTable {
+    border-collapse: collapse;
+    width: 250px;
+    padding-top: 50px;
+}
+.summaryTable td {
+    font-size: 75%;
+    text-align: left;
+}
+.tableContainer {
+    margin-top: 100px;
 }

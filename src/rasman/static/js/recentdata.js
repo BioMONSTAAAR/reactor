@@ -17,7 +17,12 @@ var History = {
             stackedGraph: false,
             labelsSeparateLines: true,
         });
-       
+
+        var tableDiv = document.createElement('div');
+        tableDiv.classList.add('tableContainer');
+        tableDiv.innerHTML = this.table(this.summarize(label));
+        
+        container.appendChild(tableDiv);
     },
     makeCSV: function makeCSV(args){
         //hardcoding the assumption that time is always the x axis
@@ -41,6 +46,43 @@ var History = {
         };
         return lines.join('\n');
     },
+    summarize: function summarize(label){
+        if (!this[label]){
+            throw "Cannot summarize nonexistent data stream.";
+        };
+        var tuples = _.zip(this['Timestamp'], this[label]);
+        tuples = tuples.sort(function(a,b){
+            return a[1] <= b[1]?-1:1;
+        });
+        var min = {
+            time: tuples[0][0],
+            value: tuples[0][1],
+        };
+        var max = {
+            time: tuples[tuples.length-1][0],
+            value: tuples[tuples.length-1][1],
+        };
+        var medianIndex = Math.floor(tuples.length/2);
+        var median = {
+            time: tuples[medianIndex][0],
+            value: tuples[medianIndex][1],
+        };
+        //how much do we care about ancient browsers?
+        var total = this[label].reduce((x,y) => x + y);
+        var mean = total/this[label].length;
+        var sumSquares = this[label].map(x => Math.pow(x - mean, 2)).
+            reduce((x,y) => x + y);
+        var stdDev = Math.sqrt(sumSquares/this[label].length);
+
+        return {
+            min: min,
+            max: max,
+            median: median,
+            mean: mean,
+            stdDev: stdDev,
+        };
+    },
+    table: _.template($('#streamSummary').text()),
 };
 
 var getCSV = $.get('/api/history/', function processCSV(data){
