@@ -68,10 +68,13 @@ var History = {
             value: tuples[medianIndex][1],
         };
         //how much do we care about ancient browsers?
-        var total = this[label].reduce((x,y) => x + y);
+        var total = this[label].reduce(function(a,b){
+            return a + b;
+        }, 0);
         var mean = total/this[label].length;
-        var sumSquares = this[label].map(x => Math.pow(x - mean, 2)).
-            reduce((x,y) => x + y);
+        var sumSquares = this[label].map(function(x){
+            return Math.pow(x - mean, 2)}).
+            reduce(function(a,b){return a+b;}, 0);
         var stdDev = Math.sqrt(sumSquares/this[label].length);
 
         return {
