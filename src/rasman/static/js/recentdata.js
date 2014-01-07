@@ -67,7 +67,6 @@ var History = {
             time: tuples[medianIndex][0],
             value: tuples[medianIndex][1],
         };
-        //how much do we care about ancient browsers?
         var total = this[label].reduce(function(a,b){
             return a + b;
         }, 0);
