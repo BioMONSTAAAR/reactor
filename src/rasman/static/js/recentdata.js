@@ -1,15 +1,16 @@
+//global object containing data from CSV; namespace for helper functions
 var History = {
-    drawGraph: function drawGraph(label, element){
-        var container = document.createElement('div');
-        container.id = label + 'Container';
-        container.classList.add('chartContainer');
+    drawGraph: function drawGraph(label, target){
+        var chartWrapper = document.createElement('div');
+        chartWrapper.id = label + 'Container';
+        chartWrapper.classList.add('chartContainer');
 
         var chartDiv = document.createElement('div');
         chartDiv.id = label + 'Chart';
         chartDiv.classList.add('chart');
 
-        container.appendChild(chartDiv);
-        element.appendChild(container);
+        chartWrapper.appendChild(chartDiv);
+        target.appendChild(chartWrapper);
 
         var graph = new Dygraph(chartDiv, History.makeCSV(label), {
             title: label,//will need prettier titles eventually
@@ -19,17 +20,19 @@ var History = {
         });
 
         var tableDiv = document.createElement('div');
-        tableDiv.classList.add('tableContainer');
+        tableDiv.classList.add('tablechartWrapper');
         tableDiv.innerHTML = this.table(this.summarize(label));
         
-        container.appendChild(tableDiv);
+        chartWrapper.appendChild(tableDiv);
     },
-    makeCSV: function makeCSV(args){
-        //hardcoding the assumption that time is always the x axis
-        var that = this;
+    makeCSV: function makeCSV(listOfHeaders){
+        //takes a variable number of arguments
         var headers = Array.prototype.slice.call(arguments);
+        //hardcoding the assumption that time is always the x axis
         headers.unshift('Timestamp');
+        var that = this;
         var headersValid = headers.every(function(header){
+            //ie, there's non-empty list of points to go with that header
             return !!that[header];
         });
         if (!headersValid){
@@ -47,6 +50,7 @@ var History = {
         return lines.join('\n');
     },
     summarize: function summarize(label){
+        //provides object to feed to 'streamSummary' template for tables
         if (!this[label]){
             throw "Cannot summarize nonexistent data stream.";
         };
@@ -87,37 +91,39 @@ var History = {
     table: _.template($('#streamSummary').text()),
 };
 
-var getCSV = $.get('/api/history/', function processCSV(data){
-    var lines = data.split(/\n+/).filter(function(x){
-        return /^[-\w]/.test(x);//avoid blank lines, allow negative numbers
-    });
-    var headers = lines.shift();
-    var labels = headers.split(/,/);
-    labels.forEach(function(label){
-        History[label] = [];
-    });
-    for (var i = 0; i<lines.length; i++){
-        var items = lines[i].split(/,/);
-        if (items.length != labels.length){
-            throw "malformed CSV file";
-        };
-        for (var k = 0; k<items.length; k++){
-            var item = items[k];
-            var label = labels[k];
-            if (label !== 'Timestamp'){
-                item = parseFloat(item);
+(function main(){
+    var getCSV = $.get('/api/history/', function processCSV(data){
+        var lines = data.split(/\n+/).filter(function(x){
+            return /^[-\w]/.test(x);//avoid blank lines, allow negative numbers
+        });
+        var headers = lines.shift();
+        var labels = headers.split(/,/);
+        labels.forEach(function(label){
+            History[label] = [];
+        });
+        for (var i = 0; i<lines.length; i++){
+            var items = lines[i].split(/,/);
+            if (items.length != labels.length){
+                throw "malformed CSV file";
             };
-            History[label].push(item);
+            for (var k = 0; k<items.length; k++){
+                var item = items[k];
+                var label = labels[k];
+                if (label !== 'Timestamp'){
+                    item = parseFloat(item);
+                };
+                History[label].push(item);
+            };
         };
-    };
-
-    var plots = document.getElementById('plots');
-    for (var i = 1; i<labels.length; i++){
-        //timestamp always included implicitly
-        History.drawGraph(labels[i], plots);
-    };
-});
-
-getCSV.fail(function(){
-    $('#plots').text('Unable to retrieve data from server.');
-});
+    
+        var plots = document.getElementById('plots');
+        for (var i = 1; i<labels.length; i++){
+            //timestamp always included implicitly
+            History.drawGraph(labels[i], plots);
+        };
+    });
+    
+    getCSV.fail(function(){
+        $('#plots').text('Unable to retrieve data from server.');
+    });
+})();
