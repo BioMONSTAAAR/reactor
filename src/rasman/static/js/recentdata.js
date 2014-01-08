@@ -1,5 +1,14 @@
 //global object containing data from CSV; namespace for helper functions
 var History = {
+    config: {
+        chartTitles: {
+            TEMP: 'Temperature (\u00b0C)',
+            CO2:  'Carbon Dioxide',
+            H20LVL:  'Water Level',
+            PH:  'pH',
+            LIGHT: 'Light',
+        },
+    },
     render: function render(label, target){
         var chartWrapper = document.createElement('div');
         chartWrapper.id = label + 'Container';
@@ -13,7 +22,7 @@ var History = {
         target.appendChild(chartWrapper);
 
         var graph = new Dygraph(chartDiv, History.makeCSV(label), {
-            title: label,//will need prettier titles eventually
+            title: History.config.chartTitles[label],
             width: 560,
             stackedGraph: false,
             labelsSeparateLines: true,
