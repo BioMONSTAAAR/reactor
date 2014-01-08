@@ -1,6 +1,6 @@
 //global object containing data from CSV; namespace for helper functions
 var History = {
-    drawGraph: function drawGraph(label, target){
+    render: function render(label, target){
         var chartWrapper = document.createElement('div');
         chartWrapper.id = label + 'Container';
         chartWrapper.classList.add('chartContainer');
@@ -20,7 +20,7 @@ var History = {
         });
 
         var tableDiv = document.createElement('div');
-        tableDiv.classList.add('tablechartWrapper');
+        tableDiv.classList.add('tableContainer');
         tableDiv.innerHTML = this.table(this.summarize(label));
         
         chartWrapper.appendChild(tableDiv);
@@ -119,7 +119,7 @@ var History = {
         var plots = document.getElementById('plots');
         for (var i = 1; i<labels.length; i++){
             //timestamp always included implicitly
-            History.drawGraph(labels[i], plots);
+            History.render(labels[i], plots);
         };
     });
     
