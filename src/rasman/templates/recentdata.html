@@ -1,39 +1,40 @@
 <!DOCTYPE html>
-<html>
 {% extends "layout.html" %}
 {% block body %}
 
 <script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/lodash.min.js"></script>
 <script src="/static/js/dygraph-combined.js"></script>
+<script src="/static/js/moment.min.js"></script>
 
-<br/><br/>
-<div id="wrapper">
-    <div id="chartdiv" style="float:left;"></div>
-    <div id="legenddiv" style="float:left; padding: 80px 0px 0px 20px; font-size: 80%"></div>
+<div id="plots">
 </div>
 
-<script src="/static/js/app.js"></script>
+<script id="streamSummary" type="text/template">
+    <table class="summaryTable">
+        <tr>
+            <td>Mean</td>
+            <td><%= mean.toFixed(2) %> &plusmn; <%= stdDev.toFixed(2) %></td>
+            <td>(no timestamp)</td>
+        </tr>
+        <tr>
+            <td>Median</td>
+            <td><%= median.value %></td>
+            <td><%= moment(median.time).format('MM/DD/YY, HH:mm:ss') %></td>
+        </tr>
+        <tr>
+            <td>Minimum</td>
+            <td><%= min.value %></td>
+            <td><%= moment(min.time).format('MM/DD/YY, HH:mm:ss') %></td>
+        </tr>
+        <tr>
+            <td>Maximum</td>
+            <td><%= max.value %></td>
+            <td><%= moment(max.time).format('MM/DD/YY, HH:mm:ss') %></td>
+        </tr>
 
-<!--
-<h2>Recent Data</h2>
-<br/>
-
-<b>Controller ID:</b> {{ config['controller_id'] }}<br/><br/>
-
-<table border="1" width="100%" style="float: center; font-size: 0.8em;">
-    <tr>
-        <th>Timestamp</th>
-        <th>Sensor Data</th>
-        <th>Uploaded</th>
-    </tr>
-    {% for row in measurements %}
-    <tr>
-        <td>{{ row[0] }}</td>
-        <td>{{ row[2] }}</td>
-        <td>{{ row[3] }}</td>
-    </tr>
-    {% endfor %}
-</table>
--->
+    </table>
+</script>
+<script src="/static/js/recentdata.js"></script>
 
 {% endblock %}
