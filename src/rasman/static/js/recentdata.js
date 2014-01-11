@@ -4,7 +4,7 @@ var History = {
         chartTitles: {
             TEMP: 'Temperature (\u00b0C)',
             CO2:  'Carbon Dioxide',
-            H20LVL:  'Water Level',
+            H2OLVL:  'Water Level',
             PH:  'pH',
             LIGHT: 'Light',
         },
@@ -27,10 +27,11 @@ var History = {
             annotations.push({
                 series: label,
                 x: stats[stat.toLowerCase()].time,
-                shortText: stat,
+                shortText: stat + ': \n' + stats[stat.toLowerCase()].value,
                 text: stat.replace(/(min|max)/i, '$1' + 'imum'),
-                width: 50,
-                height: 16,
+                width: 55,
+                height: 30,
+                cssClass: 'chartAnnotation',
             });
         });
 
@@ -72,7 +73,11 @@ var History = {
         };
         var tuples = _.zip(this['Timestamp'], this[label]);
         tuples = tuples.sort(function(a,b){
-            return a[1] <= b[1]?-1:1;
+            if (a[1] === b[1]){
+                return 0;
+            } else {
+                return a[1] < b[1]?-1:1;
+            };
         });
         var min = {
             time: tuples[0][0],

@@ -156,3 +156,6 @@ h3  { font-size: 1em; }
 .chartContainer div {
     float: left;
 }
+.chartAnnotation {
+    opacity: 0.8;
+}
