@@ -153,9 +153,18 @@ h3  { font-size: 1em; }
     float: left;
     width: 850px;
 }
-.chartContainer div {
+.chart {
     float: left;
+    margin-top: 15px;
 }
 .chartAnnotation {
-    opacity: 0.8;
+    color: black !important; /* there's a better way, surely */
+}
+.dygraph-title {
+    float: left;
+    clear: right;
+}
+.dygraph-axis-label-x {
+    margin-top: 15px;
+    margin-bottom: 15px;
 }

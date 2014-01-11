@@ -41,6 +41,9 @@ var History = {
         });
         graph.ready(function(){
             graph.setAnnotations(annotations);
+            $('.chartAnnotation').transify({
+                opacityOrig: 0.1,
+            });
         });
     },
     makeCSV: function makeCSV(listOfHeaders){
