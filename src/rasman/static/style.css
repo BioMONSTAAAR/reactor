@@ -156,15 +156,3 @@ h3  { font-size: 1em; }
 .chartContainer div {
     float: left;
 }
-.summaryTable {
-    border-collapse: collapse;
-    width: 250px;
-    padding-top: 50px;
-}
-.summaryTable td {
-    font-size: 75%;
-    text-align: left;
-}
-.tableContainer {
-    margin-top: 100px;
-}

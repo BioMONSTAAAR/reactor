@@ -21,15 +21,29 @@ var History = {
         chartWrapper.appendChild(chartDiv);
         target.appendChild(chartWrapper);
 
+        var stats = History.summarize(label);
+        var annotations = [];
+        ['Min', 'Max', 'Median'].forEach(function(stat){
+            annotations.push({
+                series: label,
+                x: stats[stat.toLowerCase()].time,
+                shortText: stat,
+                text: stat.replace(/(min|max)/i, '$1' + 'imum'),
+                width: 50,
+                height: 16,
+            });
+        });
+
         var graph = new Dygraph(chartDiv, History.makeCSV(label), {
             title: History.config.chartTitles[label],
             width: 560,
-            stackedGraph: false,
-            labelsSeparateLines: true,
+        });
+        graph.ready(function(){
+            graph.setAnnotations(annotations);
         });
     },
     makeCSV: function makeCSV(listOfHeaders){
-        //takes a variable number of arguments
+        //takes a variable number of arguments, in case it's ever needed
         var headers = Array.prototype.slice.call(arguments);
         //hardcoding the assumption that time is always the x axis
         headers.unshift('Timestamp');
@@ -53,7 +67,6 @@ var History = {
         return lines.join('\n');
     },
     summarize: function summarize(label){
-        //provides object to feed to 'streamSummary' template for tables
         if (!this[label]){
             throw "Cannot summarize nonexistent data stream.";
         };
