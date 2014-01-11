@@ -27,12 +27,6 @@ var History = {
             stackedGraph: false,
             labelsSeparateLines: true,
         });
-
-        var tableDiv = document.createElement('div');
-        tableDiv.classList.add('tableContainer');
-        tableDiv.innerHTML = this.table(this.summarize(label));
-        
-        chartWrapper.appendChild(tableDiv);
     },
     makeCSV: function makeCSV(listOfHeaders){
         //takes a variable number of arguments
@@ -97,7 +91,6 @@ var History = {
             stdDev: stdDev,
         };
     },
-    table: _.template($('#streamSummary').text()),
 };
 
 (function main(){

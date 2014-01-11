@@ -10,31 +10,6 @@
 <div id="plots">
 </div>
 
-<script id="streamSummary" type="text/template">
-    <table class="summaryTable">
-        <tr>
-            <td>Mean</td>
-            <td><%= mean.toFixed(2) %> &plusmn; <%= stdDev.toFixed(2) %></td>
-            <td>(no timestamp)</td>
-        </tr>
-        <tr>
-            <td>Median</td>
-            <td><%= median.value %></td>
-            <td><%= moment(median.time).format('MM/DD/YY, HH:mm:ss') %></td>
-        </tr>
-        <tr>
-            <td>Minimum</td>
-            <td><%= min.value %></td>
-            <td><%= moment(min.time).format('MM/DD/YY, HH:mm:ss') %></td>
-        </tr>
-        <tr>
-            <td>Maximum</td>
-            <td><%= max.value %></td>
-            <td><%= moment(max.time).format('MM/DD/YY, HH:mm:ss') %></td>
-        </tr>
-
-    </table>
-</script>
 <script src="/static/js/recentdata.js"></script>
 
 {% endblock %}
