@@ -1,4 +1,4 @@
-//global object containing data from CSV; namespace for helper functions
+//global data, namespace for helper functions
 var History = {
     config: {
         chartTitles: {
@@ -143,13 +143,13 @@ var History = {
             return str.replace(/\.\d+$/, '');
         });
 
-        var headers = Object.keys(JSON.parse(data[sortedTimeStamps[0]]));
+        var headers = Object.keys(data[sortedTimeStamps[0]]);
         headers.forEach(function(header){
             History[header.toLowerCase()] = [];
         });
 
         for (var i = 0; i<sortedTimeStamps.length; i++){
-            var rowData = JSON.parse(data[sortedTimeStamps[i]]);
+            var rowData = data[sortedTimeStamps[i]];
             for (var measurement in rowData){
                 var value = parseFloat(rowData[measurement]);
                 History[measurement.toLowerCase()].push(value);
