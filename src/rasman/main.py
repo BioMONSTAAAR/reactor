@@ -258,6 +258,7 @@ def _convert_jsondata_to_csv(jsonstring, sensors):
 def api_history():
     sensors = DEFAULT_CONFIG['sensors']
     meas = get_saved_measurements(limit=12*24*2, for_upload=True)   # 2-day graph
+    #can probably save significant bandwidth by converting timestamps to integers here
     return jsonify(meas)
 
 @app.route("/api/addmeas/")

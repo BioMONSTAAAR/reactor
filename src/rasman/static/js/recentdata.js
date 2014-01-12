@@ -2,6 +2,7 @@
 var History = {
     config: {
         chartTitles: {
+            time: 'Time',
             temp: 'Temperature (\u00b0C)',
             co2:  'Carbon Dioxide',
             h2olvl:  'Water Level',
@@ -9,34 +10,46 @@ var History = {
             light: 'Light',
         },
     },
-    render: function render(label, target){
+    render: function render(labels, target){
+        labels = labels.map(function(x){return x.toLowerCase()});
         var chartWrapper = document.createElement('div');
-        chartWrapper.id = label + 'Container';
+//        chartWrapper.id = label + 'Container';
         chartWrapper.classList.add('chartContainer');
 
         var chartDiv = document.createElement('div');
-        chartDiv.id = label + 'Chart';
+//       chartDiv.id = label + 'Chart';
         chartDiv.classList.add('chart');
 
         chartWrapper.appendChild(chartDiv);
         target.appendChild(chartWrapper);
 
-        var stats = History.summarize(label);
+        var summaries = labels.map(function(label){
+            return History.summarize(label);
+        });
         var annotations = [];
         ['Min', 'Max', 'Median'].forEach(function(stat){
-            annotations.push({
-                series: label,
-                x: stats[stat.toLowerCase()].time,
-                shortText: stat + ': \n' + stats[stat.toLowerCase()].value,
-                text: stat.replace(/(min|max)/i, '$1' + 'imum'),
-                width: 55,
-                height: 30,
-                cssClass: 'chartAnnotation',
+            labels.forEach(function(label, index){
+                annotations.push({
+                    series: label,
+                    x: summaries[index][stat.toLowerCase()].time.replace(/\.\d+$/, ''),
+                    shortText: stat + ': \n' + summaries[index][stat.toLowerCase()].value,
+                    text: stat.replace(/(min|max)/i, '$1' + 'imum'),
+                    width: 55,
+                    height: 30,
+                    cssClass: 'chartAnnotation',
+                });
             });
         });
+        console.log(annotations);
 
-        var graph = new Dygraph(chartDiv, History.makeCSV(label), {
-            title: History.config.chartTitles[label],
+        var titles = labels.map(function(label){
+            return History.config.chartTitles[label];
+        });
+        var graphTitle = titles.join(', ');
+        var graphLabels = [History.config.chartTitles.time].concat(titles);
+        var graph = new Dygraph(chartDiv, History.timeSeries.apply(undefined, labels), {
+            title: graphTitle,
+            labels: graphLabels,
             width: 560,
         });
         graph.ready(function(){
@@ -46,35 +59,38 @@ var History = {
             });
         });
     },
-    makeCSV: function makeCSV(listOfHeaders){
+    timeSeries: function timeSeries(listOfHeaders){
         //takes a variable number of arguments, in case it's ever needed
-        var headers = Array.prototype.slice.call(arguments);
-        //hardcoding the assumption that time is always the x axis
-        headers.unshift('Timestamp');
-        var that = this;
+        var headers = Array.prototype.slice.call(arguments).map(function(x){
+            return x.toLowerCase();
+        });
+        headers.unshift('time');
         var headersValid = headers.every(function(header){
             //ie, there's non-empty list of points to go with that header
-            return !!that[header];
+            return !!History[header];
         });
         if (!headersValid){
-            throw "Cannot generate CSV for nonexistent data stream.";
+            console.log(headers);
+            throw "Cannot produce time series for nonexistent data stream.";
         };
-
-        var lines = [headers.join(',')];
-        for (var i = 0; i<this.Timestamp.length; i++){
-            var data = [];
-            for (var k = 0; k<headers.length; k++){
-                data.push(this[headers[k]][i]);
+        var series = [];
+        for (var i = 0; i<History.time.length; i++){
+            var tuple = [];
+            for (var h = 0; h<headers.length; h++){
+                var value = History[headers[h]][i];
+                tuple.push(value);
             };
-            lines.push(data.join(','));
+            tuple[0] = moment(tuple[0])._d.toString();//internal date object.
+            series.push(tuple);
         };
-        return lines.join('\n');
+        return series;
     },
     summarize: function summarize(label){
+        label = label.toLowerCase();
         if (!this[label]){
-            throw "Cannot summarize nonexistent data stream.";
+            throw "Cannot summarize nonexistent data stream " + label;
         };
-        var tuples = _.zip(this['Timestamp'], this[label]);
+        var tuples = _.zip(this.time, this[label]);
         tuples = tuples.sort(function(a,b){
             if (a[1] === b[1]){
                 return 0;
@@ -99,9 +115,13 @@ var History = {
             return a + b;
         }, 0);
         var mean = total/this[label].length;
-        var sumSquares = this[label].map(function(x){
-            return Math.pow(x - mean, 2)}).
-            reduce(function(a,b){return a+b;}, 0);
+        var sumSquares = this[label].
+            map(function(x){
+                return Math.pow(x - mean, 2);
+            }).
+            reduce(function(a,b){
+                return a+b;},
+            0);
         var stdDev = Math.sqrt(sumSquares/this[label].length);
 
         return {
@@ -116,24 +136,30 @@ var History = {
 
 (function main(){
     var getCSV = $.get('/api/history/', function handleRawData(data){
-        History.time = Object.keys(data).sort(function(a,b){
+        var sortedTimeStamps = Object.keys(data).sort(function(a,b){
             return moment(a).unix() - moment(b).unix();
         });
+        History.time = sortedTimeStamps.map(function(str){
+            return str.replace(/\.\d+$/, '');
+        });
 
-        var headers = Object.keys(JSON.parse(data[History.time[0]]));
+        var headers = Object.keys(JSON.parse(data[sortedTimeStamps[0]]));
         headers.forEach(function(header){
             History[header.toLowerCase()] = [];
         });
 
-        for (var i = 0; i<History.time.length; i++){
-            var rowData = JSON.parse(data[History.time[i]]);
+        for (var i = 0; i<sortedTimeStamps.length; i++){
+            var rowData = JSON.parse(data[sortedTimeStamps[i]]);
             for (var measurement in rowData){
                 var value = parseFloat(rowData[measurement]);
                 History[measurement.toLowerCase()].push(value);
             };
         };
-        //TO DO:
-        //rewrite summarize, render, makeCSV methods
+
+        var plots = document.getElementById('plots');
+        for (var i = 0; i<headers.length; i++){
+            History.render([headers[i]], plots);
+        };
     });
     
     getCSV.fail(function(){
