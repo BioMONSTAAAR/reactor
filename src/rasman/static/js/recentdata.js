@@ -132,7 +132,8 @@ var History = {
                 History[measurement.toLowerCase()].push(value);
             };
         };
-        console.log(History);
+        //TO DO:
+        //rewrite summarize, render, makeCSV methods
     });
     
     getCSV.fail(function(){
