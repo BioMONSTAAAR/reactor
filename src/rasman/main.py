@@ -259,9 +259,9 @@ def _convert_jsondata_to_csv(jsonstring, sensors):
 def api_history():
     sensors = DEFAULT_CONFIG['sensors']
     meas = get_saved_measurements(limit=12*24*2, for_upload=True)   # 2-day graph
+    #storing in the database as integers to begin with might be more readable :-)
     unixify = lambda x: calendar.timegm(datetime.strptime(x[0:19], "%Y-%m-%d %H:%M:%S").timetuple())
     meas_processed = [(unixify(x[0]), json.loads(x[1])) for x in meas]
-    #can probably save significant bandwidth by converting timestamps to integers here
     return jsonify(meas_processed)
 
 @app.route("/api/addmeas/")
