@@ -258,13 +258,7 @@ def _convert_jsondata_to_csv(jsonstring, sensors):
 def api_history():
     sensors = DEFAULT_CONFIG['sensors']
     meas = get_saved_measurements(limit=12*24*2, for_upload=True)   # 2-day graph
-    headers = 'Timestamp,' + ','.join(sensors) + '\n'
-    mycsv = headers
-    for m in meas:
-        timestamp,jsonstring = m
-        timestamp = re.sub(r'\.\d\d\d$', '', timestamp)     # remove millisecs 
-        mycsv += "%s,%s\n" % (timestamp, _convert_jsondata_to_csv(jsonstring, sensors))
-    return mycsv
+    return jsonify(meas)
 
 @app.route("/api/addmeas/")
 def api_addmeas():

@@ -2,11 +2,11 @@
 var History = {
     config: {
         chartTitles: {
-            TEMP: 'Temperature (\u00b0C)',
-            CO2:  'Carbon Dioxide',
-            H2OLVL:  'Water Level',
-            PH:  'pH',
-            LIGHT: 'Light',
+            temp: 'Temperature (\u00b0C)',
+            co2:  'Carbon Dioxide',
+            h2olvl:  'Water Level',
+            ph:  'pH',
+            light: 'Light',
         },
     },
     render: function render(label, target){
@@ -115,35 +115,24 @@ var History = {
 };
 
 (function main(){
-    var getCSV = $.get('/api/history/', function processCSV(data){
-        var lines = data.split(/\n+/).filter(function(x){
-            return /^[-\w]/.test(x);//avoid blank lines, allow negative numbers
+    var getCSV = $.get('/api/history/', function handleRawData(data){
+        History.time = Object.keys(data).sort(function(a,b){
+            return moment(a).unix() - moment(b).unix();
         });
-        var headers = lines.shift();
-        var labels = headers.split(/,/);
-        labels.forEach(function(label){
-            History[label] = [];
+
+        var headers = Object.keys(JSON.parse(data[History.time[0]]));
+        headers.forEach(function(header){
+            History[header.toLowerCase()] = [];
         });
-        for (var i = 0; i<lines.length; i++){
-            var items = lines[i].split(/,/);
-            if (items.length != labels.length){
-                throw "malformed CSV file";
-            };
-            for (var k = 0; k<items.length; k++){
-                var item = items[k];
-                var label = labels[k];
-                if (label !== 'Timestamp'){
-                    item = parseFloat(item);
-                };
-                History[label].push(item);
+
+        for (var i = 0; i<History.time.length; i++){
+            var rowData = JSON.parse(data[History.time[i]]);
+            for (var measurement in rowData){
+                var value = parseFloat(rowData[measurement]);
+                History[measurement.toLowerCase()].push(value);
             };
         };
-    
-        var plots = document.getElementById('plots');
-        for (var i = 1; i<labels.length; i++){
-            //timestamp always included implicitly
-            History.render(labels[i], plots);
-        };
+        console.log(History);
     });
     
     getCSV.fail(function(){
