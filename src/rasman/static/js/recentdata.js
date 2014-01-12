@@ -11,7 +11,6 @@ var History = {
         },
     },
     render: function render(labels, target){
-        labels = labels.map(function(x){return x.toLowerCase()});
         var chartWrapper = document.createElement('div');
 //        chartWrapper.id = label + 'Container';
         chartWrapper.classList.add('chartContainer');
@@ -31,7 +30,8 @@ var History = {
             labels.forEach(function(label, index){
                 annotations.push({
                     series: label,
-                    x: summaries[index][stat.toLowerCase()].time.replace(/\.\d+$/, ''),
+//                    x: summaries[index][stat.toLowerCase()].time.replace(/\.\d+$/, ''),
+                    x: 'placeholder',
                     shortText: stat + ': \n' + summaries[index][stat.toLowerCase()].value,
                     text: stat.replace(/(min|max)/i, '$1' + 'imum'),
                     width: 55,
@@ -40,7 +40,6 @@ var History = {
                 });
             });
         });
-        console.log(annotations);
 
         var titles = labels.map(function(label){
             return History.config.chartTitles[label];
@@ -57,13 +56,12 @@ var History = {
             $('.chartAnnotation').transify({
                 opacityOrig: 0.1,
             });
+            console.log(graph);
         });
     },
     timeSeries: function timeSeries(listOfHeaders){
         //takes a variable number of arguments, in case it's ever needed
-        var headers = Array.prototype.slice.call(arguments).map(function(x){
-            return x.toLowerCase();
-        });
+        var headers = Array.prototype.slice.call(arguments);
         headers.unshift('time');
         var headersValid = headers.every(function(header){
             //ie, there's non-empty list of points to go with that header
@@ -80,7 +78,7 @@ var History = {
                 var value = History[headers[h]][i];
                 tuple.push(value);
             };
-            tuple[0] = moment(tuple[0])._d.toString();//internal date object.
+            tuple[0] = new Date(tuple[0]);
             series.push(tuple);
         };
         return series;
@@ -136,24 +134,17 @@ var History = {
 
 (function main(){
     var getCSV = $.get('/api/history/', function handleRawData(data){
-        var sortedTimeStamps = Object.keys(data).sort(function(a,b){
-            return moment(a).unix() - moment(b).unix();
-        });
-        History.time = sortedTimeStamps.map(function(str){
-            return str.replace(/\.\d+$/, '');
-        });
-
-        var headers = Object.keys(data[sortedTimeStamps[0]]);
+        History.time =_.pluck(data, '0');
+        var headers = Object.keys(data[0][1]);
         headers.forEach(function(header){
-            History[header.toLowerCase()] = [];
+            History[header] = [];
         });
 
-        for (var i = 0; i<sortedTimeStamps.length; i++){
-            var rowData = data[sortedTimeStamps[i]];
-            for (var measurement in rowData){
-                var value = parseFloat(rowData[measurement]);
-                History[measurement.toLowerCase()].push(value);
-            };
+        for (var i = 0; i<History.time.length; i++){
+            headers.forEach(function(header){
+                var value = data[i][1][header]
+                History[header].push(value);
+            });
         };
 
         var plots = document.getElementById('plots');
