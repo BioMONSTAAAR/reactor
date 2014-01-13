@@ -1,38 +1,42 @@
+'use strict';
 //global data, namespace for helper functions
 var History = {
     config: {
-        chartTitles: {
-            time: 'Time',
-            temp: 'Temperature (\u00b0C)',
-            co2:  'Carbon Dioxide',
-            h2olvl:  'Water Level',
-            ph:  'pH',
-            light: 'Light',
+        labels: {
+            time: 'Timestamp',
+            ph: 'pH',
+            h2olvl: 'Water Level',
+            temp: 'Temperature',
+            co2: 'Carbon Dioxide',
         },
+        chartList: [
+            {
+                title: 'first chart',
+                series: ['light', 'temp'],
+            },
+        ],
     },
-    render: function render(labels, target){
+    render: function render(chart, target){
+        var labels = ['time'].concat(chart.series);
+        var chartData = History.timeSeries.apply(undefined, labels);
+
         var chartWrapper = document.createElement('div');
-//        chartWrapper.id = label + 'Container';
         chartWrapper.classList.add('chartContainer');
 
         var chartDiv = document.createElement('div');
-//       chartDiv.id = label + 'Chart';
         chartDiv.classList.add('chart');
 
         chartWrapper.appendChild(chartDiv);
         target.appendChild(chartWrapper);
 
-        var summaries = labels.map(function(label){
-            return History.summarize(label);
-        });
         var annotations = [];
         ['Min', 'Max', 'Median'].forEach(function(stat){
-            labels.forEach(function(label, index){
+            chart.series.forEach(function(label, index){
+                var summary = History.summarize(label);
                 annotations.push({
                     series: label,
-//                    x: summaries[index][stat.toLowerCase()].time.replace(/\.\d+$/, ''),
-                    x: 'placeholder',
-                    shortText: stat + ': \n' + summaries[index][stat.toLowerCase()].value,
+                    x: new Date(summary[stat.toLowerCase()].time),
+                    shortText: stat + ': \n' + summary[stat.toLowerCase()].value,
                     text: stat.replace(/(min|max)/i, '$1' + 'imum'),
                     width: 55,
                     height: 30,
@@ -41,18 +45,17 @@ var History = {
             });
         });
 
-        var titles = labels.map(function(label){
-            return History.config.chartTitles[label];
+        var graphLabels = labels.map(function(stream){
+            return History.config.labels[stream] || stream;
         });
-        var graphTitle = titles.join(', ');
-        var graphLabels = [History.config.chartTitles.time].concat(titles);
-        var graph = new Dygraph(chartDiv, History.timeSeries.apply(undefined, labels), {
-            title: graphTitle,
+        var graph = new Dygraph(chartDiv, chartData, {
+            title: chart.title,
             labels: graphLabels,
             width: 560,
         });
         graph.ready(function(){
             graph.setAnnotations(annotations);
+            console.log(annotations);
             $('.chartAnnotation').transify({
                 opacityOrig: 0.1,
             });
@@ -61,8 +64,8 @@ var History = {
     },
     timeSeries: function timeSeries(listOfHeaders){
         //takes a variable number of arguments, in case it's ever needed
+        //assumes first argument can be parsed by Date
         var headers = Array.prototype.slice.call(arguments);
-        headers.unshift('time');
         var headersValid = headers.every(function(header){
             //ie, there's non-empty list of points to go with that header
             return !!History[header];
@@ -85,11 +88,12 @@ var History = {
     },
     summarize: function summarize(label){
         label = label.toLowerCase();
-        if (!this[label]){
+        if (!History[label]){
             throw "Cannot summarize nonexistent data stream " + label;
         };
-        var tuples = _.zip(this.time, this[label]);
-        tuples = tuples.sort(function(a,b){
+
+        var tuples = _.zip(History.time, History[label]);
+        tuples.sort(function(a,b){
             if (a[1] === b[1]){
                 return 0;
             } else {
@@ -109,18 +113,17 @@ var History = {
             time: tuples[medianIndex][0],
             value: tuples[medianIndex][1],
         };
-        var total = this[label].reduce(function(a,b){
+        var total = History[label].reduce(function(a,b){
             return a + b;
         }, 0);
-        var mean = total/this[label].length;
-        var sumSquares = this[label].
+        var mean = total/History[label].length;
+        var sumSquares = History[label].
             map(function(x){
                 return Math.pow(x - mean, 2);
             }).
-            reduce(function(a,b){
-                return a+b;},
+            reduce(function(a,b){ return a+b;},
             0);
-        var stdDev = Math.sqrt(sumSquares/this[label].length);
+        var stdDev = Math.sqrt(sumSquares/History[label].length);
 
         return {
             min: min,
@@ -134,8 +137,10 @@ var History = {
 
 (function main(){
     var getCSV = $.get('/api/history/', function handleRawData(data){
+        /* POPULATE HISTORY OBJECT */
+        //data comes from the server in chronological order
         History.time =_.pluck(data, '0');
-        var headers = Object.keys(data[0][1]);
+        var headers = Object.keys(data[0][1]);//first one chosen arbitrarily
         headers.forEach(function(header){
             History[header] = [];
         });
@@ -147,10 +152,9 @@ var History = {
             });
         };
 
+        /* DRAW PLOTS */
         var plots = document.getElementById('plots');
-        for (var i = 0; i<headers.length; i++){
-            History.render([headers[i]], plots);
-        };
+        History.render(History.config.chartList[0], plots);
     });
     
     getCSV.fail(function(){
