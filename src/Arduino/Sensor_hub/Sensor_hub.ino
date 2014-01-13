@@ -52,6 +52,7 @@ String sensorstring = "";  //a string to hold the data from the Atlas Scientific
 String currentport = ""; // current active sensor/motor 
 String currentcmd = ""; // current cmd
 boolean input_stringcomplete = false;  //have we received all the data from the PC
+boolean tp_constant = false; //constant tape readings
 
 int genChecksum(String s) {
   int sum = 0;
@@ -223,6 +224,18 @@ void loop() {
       
       motorControl(id, speed);
     }
+    
+    if (currentport.equals("tp")) {
+      switch (currentcmd[0]) {
+        case 'r': printETapeRead(); break;
+        case 'c': tp_constant = true; break;
+        case 'e': tp_constant = false; break;
+        default: break;
+      }
+    }
+    if (tp_constant) {
+      printETapeRead();
+    }
 
     inputstring = "";   //clear the string:
     input_stringcomplete = false;   //reset the flag used to tell if we have received a completed string from the PC
@@ -298,7 +311,6 @@ void loop() {
    eTape reading
   */
   delay(100);
-  printETapeRead();
 }
 
 
