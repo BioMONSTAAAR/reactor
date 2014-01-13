@@ -35,7 +35,7 @@ var History = {
                 var summary = History.summarize(label);
                 annotations.push({
                     series: label,
-                    x: new Date(summary[stat.toLowerCase()].time),
+                    x: new Date(summary[stat.toLowerCase()].time).toISOString(),
                     shortText: stat + ': \n' + summary[stat.toLowerCase()].value,
                     text: stat.replace(/(min|max)/i, '$1' + 'imum'),
                     width: 55,
@@ -52,6 +52,9 @@ var History = {
             title: chart.title,
             labels: graphLabels,
             width: 560,
+            xValueParser: function(date){
+                return new Date(date).getTime();
+            },
         });
         graph.ready(function(){
             graph.setAnnotations(annotations);
@@ -131,6 +134,7 @@ var History = {
             median: median,
             mean: mean,
             stdDev: stdDev,
+            tuples: tuples,
         };
     },
 };
