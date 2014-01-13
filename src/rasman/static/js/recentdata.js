@@ -2,6 +2,7 @@
 //global data, namespace for helper functions
 var History = {
     config: {
+        //how to label the datastreams in the charts
         labels: {
             time: 'Timestamp',
             ph: 'pH',
@@ -9,6 +10,7 @@ var History = {
             temp: 'Temperature',
             co2: 'Carbon Dioxide',
         },
+        //list determines what charts get drawn, what's on the axes, etc.
         chartList: [
             {
                 title: 'first chart',
@@ -16,7 +18,9 @@ var History = {
             },
         ],
     },
+    graphs: [],
     render: function render(chart, target){
+        //'chart' argument is entry in this.config.chartList
         var labels = ['time'].concat(chart.series);
         var chartData = History.timeSeries.apply(undefined, labels);
 
@@ -44,6 +48,7 @@ var History = {
                 });
             });
         };
+        console.log(annotations);
 
         var graphLabels = labels.map(function(stream){
             return History.config.labels[stream] || stream;
@@ -60,11 +65,13 @@ var History = {
         });
         graph.ready(function(){
             graph.setAnnotations(annotations);
-            console.log(annotations);
+            console.log(graph.annotations());
+            //make borders, background of annotations invisible
             $('.chartAnnotation').transify({
                 opacityOrig: 0.1,
             });
         });
+        History.graphs.push(graph);
     },
     timeSeries: function timeSeries(listOfHeaders){
         //takes a variable number of arguments, in case it's ever needed
@@ -96,6 +103,7 @@ var History = {
             throw "Cannot summarize nonexistent data stream " + label;
         };
 
+        //"schwartzian transform"
         var tuples = _.zip(History.time, History[label]);
         tuples.sort(function(a,b){
             if (a[1] === b[1]){
@@ -135,7 +143,6 @@ var History = {
             median: median,
             mean: mean,
             stdDev: stdDev,
-            tuples: tuples,
         };
     },
 };
