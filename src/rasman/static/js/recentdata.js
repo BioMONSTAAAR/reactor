@@ -12,7 +12,7 @@ var History = {
         chartList: [
             {
                 title: 'first chart',
-                series: ['light', 'temp'],
+                series: ['light', 'temp', 'ph'],
             },
         ],
     },
@@ -30,11 +30,11 @@ var History = {
         target.appendChild(chartWrapper);
 
         var annotations = [];
-        ['Min', 'Max', 'Median'].forEach(function(stat){
-            chart.series.forEach(function(label, index){
-                var summary = History.summarize(label);
+        for (var i = 1; i<labels.length; i++){
+            var summary = History.summarize(labels[i]);
+            ['Min', 'Max', 'Median'].forEach(function(stat){
                 annotations.push({
-                    series: label,
+                    series: labels[i],
                     x: new Date(summary[stat.toLowerCase()].time).toISOString(),
                     shortText: stat + ': \n' + summary[stat.toLowerCase()].value,
                     text: stat.replace(/(min|max)/i, '$1' + 'imum'),
@@ -43,7 +43,7 @@ var History = {
                     cssClass: 'chartAnnotation',
                 });
             });
-        });
+        };
 
         var graphLabels = labels.map(function(stream){
             return History.config.labels[stream] || stream;
@@ -52,9 +52,11 @@ var History = {
             title: chart.title,
             labels: graphLabels,
             width: 560,
+            /* docs say this only applies for csv data, but including this fixed
+               my problem */
             xValueParser: function(date){
                 return new Date(date).getTime();
-            },
+            }, 
         });
         graph.ready(function(){
             graph.setAnnotations(annotations);
@@ -62,7 +64,6 @@ var History = {
             $('.chartAnnotation').transify({
                 opacityOrig: 0.1,
             });
-            console.log(graph);
         });
     },
     timeSeries: function timeSeries(listOfHeaders){
@@ -158,7 +159,9 @@ var History = {
 
         /* DRAW PLOTS */
         var plots = document.getElementById('plots');
-        History.render(History.config.chartList[0], plots);
+        for (var i = 0; i<History.config.chartList.length; i++){
+            History.render(History.config.chartList[i], plots);
+        };
     });
     
     getCSV.fail(function(){
