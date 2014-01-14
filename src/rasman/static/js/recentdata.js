@@ -9,6 +9,7 @@ var History = {
             h2olvl: 'Water Level',
             temp: 'Temperature',
             co2: 'Carbon Dioxide',
+            reverse: {},//used by click handler.  populated dynamically.
         },
         //list determines what charts get drawn, what's on the axes, etc.
         chartList: [
@@ -18,6 +19,7 @@ var History = {
             },
         ],
     },
+    //keep references to each graph in case they need to be modified later
     graphs: [],
     render: function render(chart, target){
         //'chart' argument is entry in this.config.chartList
@@ -33,23 +35,6 @@ var History = {
         chartWrapper.appendChild(chartDiv);
         target.appendChild(chartWrapper);
 
-        var annotations = [];
-        for (var i = 1; i<labels.length; i++){
-            var summary = History.summarize(labels[i]);
-            ['Min', 'Max', 'Median'].forEach(function(stat){
-                annotations.push({
-                    series: labels[i],
-                    x: new Date(summary[stat.toLowerCase()].time).toISOString(),
-                    shortText: stat + ': \n' + summary[stat.toLowerCase()].value,
-                    text: stat.replace(/(min|max)/i, '$1' + 'imum'),
-                    width: 55,
-                    height: 30,
-                    cssClass: 'chartAnnotation',
-                });
-            });
-        };
-        console.log(annotations);
-
         var graphLabels = labels.map(function(stream){
             return History.config.labels[stream] || stream;
         });
@@ -57,22 +42,44 @@ var History = {
             title: chart.title,
             labels: graphLabels,
             width: 560,
+            clickCallback: function(e, x, points){
+                //create reverse lookup table, because information about 
+                //nearest points are given like "Water Level" rather than "h20lvl"
+                var config = History.config;
+                if (_.size(config.labels.reverse) == 0){
+                    var streams = Object.keys(config.labels);
+                    streams.forEach(function(label){
+                        if (label !== 'reverse'){
+                            var key = config.labels[label] || label;
+                            config.labels.reverse[key] = label;
+                        };
+                    });
+                };
+
+                var clickY = e.pageY - $(e.target).offset().top;
+                var closestPoint = _.min(points, function(pt){
+                    return Math.abs(clickY - pt.canvasy);
+                });
+                var nearestStream = config.labels.reverse[closestPoint.name] || closestPoint.name;
+                console.log(nearestStream);
+
+                var tableDiv;
+                if (chartDiv.nextElementSibling){
+                    tableDiv = chartDiv.nextElementSibling;
+                } else {
+                    tableDiv = document.createElement('div');
+                    tableDiv.classList.add('tableContainer');
+                };
+            },
             /* docs say this only applies for csv data, but including this fixed
-               my problem */
+               my problem with annotations */
             xValueParser: function(date){
                 return new Date(date).getTime();
             }, 
         });
-        graph.ready(function(){
-            graph.setAnnotations(annotations);
-            console.log(graph.annotations());
-            //make borders, background of annotations invisible
-            $('.chartAnnotation').transify({
-                opacityOrig: 0.1,
-            });
-        });
         History.graphs.push(graph);
     },
+    template: _.template($('#streamSummary').text()),
     timeSeries: function timeSeries(listOfHeaders){
         //takes a variable number of arguments, in case it's ever needed
         //assumes first argument can be parsed by Date
