@@ -21,6 +21,8 @@ var History = {
     },
     //keep references to each graph in case they need to be modified later
     graphs: [],
+    //no reason to compute summaries twice if the history data isn't updated live
+    summaries: {},
     render: function render(chart, target){
         //'chart' argument is entry in this.config.chartList
         var labels = ['time'].concat(chart.series);
@@ -61,14 +63,12 @@ var History = {
                     return Math.abs(clickY - pt.canvasy);
                 });
                 var nearestStream = config.labels.reverse[closestPoint.name] || closestPoint.name;
-                console.log(nearestStream);
 
-                var tableDiv;
-                if (chartDiv.nextElementSibling){
-                    tableDiv = chartDiv.nextElementSibling;
-                } else {
-                    tableDiv = document.createElement('div');
-                    tableDiv.classList.add('tableContainer');
+                if (graph.currentTable !== nearestStream){
+                    //update table if necessary
+                    var divToUpdate = chartWrapper.querySelector('.tableContainer');
+                    divToUpdate.innerHTML = History.table(History.summarize(nearestStream));
+                    graph.currentTable = nearestStream;
                 };
             },
             /* docs say this only applies for csv data, but including this fixed
@@ -77,9 +77,16 @@ var History = {
                 return new Date(date).getTime();
             }, 
         });
+        graph.currentTable = chart.series[0];
+        var tableDiv = document.createElement('div');
+        tableDiv.classList.add('tableContainer');
+        tableDiv.id = graph.currentTable + 'TableContainer';
+        tableDiv.innerHTML = History.table(History.summarize(graph.currentTable));
+        chartWrapper.appendChild(tableDiv);
+
         History.graphs.push(graph);
     },
-    template: _.template($('#streamSummary').text()),
+    table: _.template($('#streamSummary').text()),
     timeSeries: function timeSeries(listOfHeaders){
         //takes a variable number of arguments, in case it's ever needed
         //assumes first argument can be parsed by Date
@@ -143,14 +150,18 @@ var History = {
             reduce(function(a,b){ return a+b;},
             0);
         var stdDev = Math.sqrt(sumSquares/History[label].length);
-
-        return {
+        
+        var result = {
             min: min,
             max: max,
             median: median,
             mean: mean,
             stdDev: stdDev,
         };
+        //cache it
+        History.summaries[label] = result;
+
+        return result;
     },
 };
 
