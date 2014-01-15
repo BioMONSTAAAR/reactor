@@ -15,8 +15,16 @@ var History = {
         //list determines what charts get drawn, what's on the axes, etc.
         chartList: [
             {
-                title: 'first chart',
-                series: ['light', 'temp', 'ph'],
+                title: 'Light + Temperature',
+                series: ['light', 'temp'],
+            },
+            {
+                title: 'CO2 and pH',
+                series: ['co2', 'ph'],
+            },
+            {
+                title: 'Water Level',
+                series: ['h2olvl'],
             },
         ],
     },
