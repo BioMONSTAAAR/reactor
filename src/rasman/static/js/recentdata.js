@@ -6,6 +6,7 @@ var History = {
         labels: {
             time: 'Timestamp',
             ph: 'pH',
+            light: 'Light',
             h2olvl: 'Water Level',
             temp: 'Temperature',
             co2: 'Carbon Dioxide',
@@ -116,6 +117,10 @@ var History = {
         if (!History[label]){
             throw "Cannot summarize nonexistent data stream " + label;
         };
+        if (History.summaries[label]){
+            //take advantage of cache
+            return History.summaries[label];
+        };
 
         //"schwartzian transform"
         var tuples = _.zip(History.time, History[label]);
@@ -152,6 +157,7 @@ var History = {
         var stdDev = Math.sqrt(sumSquares/History[label].length);
         
         var result = {
+            title: History.config.labels[label] || label,
             min: min,
             max: max,
             median: median,
