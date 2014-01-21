@@ -2,6 +2,32 @@
 //global data, namespace for helper functions
 var History = {
     config: {
+        //list determines what charts get drawn, what's on the axes, etc.
+        chartList: [
+            {
+                title: 'Light + Temperature',
+                labels: ['light', 'temp'],
+                series: {
+                    light: { axis: 'y' },
+                    temp: { axis: 'y2' },
+                },
+            },
+            {
+                title: 'CO2 and pH',
+                labels: ['co2', 'ph'],
+                series: {
+                    co2: 'y',
+                    ph: 'y2',
+                },
+            },
+            {
+                title: 'Water Level',
+                labels: ['h2olvl'],
+                series: {
+                    h2olvl: 'y',
+                },
+            },
+        ],
         //how to label the datastreams in the charts
         labels: {
             time: 'Timestamp',
@@ -12,21 +38,6 @@ var History = {
             co2: 'Carbon Dioxide',
             reverse: {},//used by click handler.  populated dynamically.
         },
-        //list determines what charts get drawn, what's on the axes, etc.
-        chartList: [
-            {
-                title: 'Light + Temperature',
-                series: ['light', 'temp'],
-            },
-            {
-                title: 'CO2 and pH',
-                series: ['co2', 'ph'],
-            },
-            {
-                title: 'Water Level',
-                series: ['h2olvl'],
-            },
-        ],
     },
     //keep references to each graph in case they need to be modified later
     graphs: [],
@@ -34,7 +45,7 @@ var History = {
     summaries: {},
     render: function render(chart, target){
         //'chart' argument is entry in this.config.chartList
-        var labels = ['time'].concat(chart.series);
+        var labels = ['time'].concat(chart.labels);
         var chartData = History.timeSeries.apply(undefined, labels);
 
         var chartWrapper = document.createElement('div');
@@ -53,6 +64,7 @@ var History = {
             title: chart.title,
             labels: graphLabels,
             width: 560,
+            series: chart.series,
             clickCallback: function(e, x, points){
                 //create reverse lookup table, because information about 
                 //nearest points are given like "Water Level" rather than "h20lvl"
@@ -86,7 +98,7 @@ var History = {
                 return new Date(date).getTime();
             }, 
         });
-        graph.currentTable = chart.series[0];
+        graph.currentTable = chart.labels[0];
         var tableDiv = document.createElement('div');
         tableDiv.classList.add('tableContainer');
         tableDiv.id = graph.currentTable + 'TableContainer';
