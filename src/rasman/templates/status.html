@@ -1,63 +1,70 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<h2>Bioreactor Status</h2>
-<br/>
-<p><b>{{ config['controller_id'] }}</b></p>
-{% if timestamp %}
-    <p>Measured on {{ timestamp }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    {% if uploaded %}
-        <p style="color:green">UPLOADED</p>
-    {% else %}
-        <p style="color:red">NOT UPLOADED</p>
-    {% endif %}
-    </p>
-    <br/>
-{% endif %}
-{% for message in get_flashed_messages() %}
-    <div class=flash>{{ message }}</div>
-{% endfor %}
-<br/>
+<h3>Remote Operation Panel</h3>
 
+<div class="switches">
+    Motor 1
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="motor1">
+        <label class="onoffswitch-label" for="motor1">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
 
-<table border="1" width="60%" style="float:center">
-    <tr>
-        <th>Sensors</th>
-        <th>Value</th>
-        <th>Units</th>
-    </tr>
-    {% for sensor in config['sensors'] %}
-        <tr>
-            <td> {{ config['labels'][loop.index -1] }} </td>
-            <td> {{ data[sensor] }} </td>
-            <td> {{ config['units'][loop.index - 1] }} </td>
-        </tr>
-    {% endfor %}
-</table>
+    Motor 2
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="motor2">
+        <label class="onoffswitch-label" for="motor2">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
 
-<br/>
-<table border="1" width="60%" style="float:center">
-    <tr>
-        <th>Motor Pumps</th>
-        <th>Status</th>
-        <th>Last Active</th>
-    </tr>
-    <tr>
-        <td>Mixer</td>
-        <td>on</td>
-        <td>running</td>
-    </tr>
-    <tr>
-        <td>Nutrient Feed</td>
-        <td>off</td>
-        <td>47 minutes ago</td>
-    </tr>
-    <tr>
-        <td>Harvester</td>
-        <td>off</td>
-        <td>3 hours ago</td>
-    </tr>
-</table>
+    Motor 3
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="motor3">
+        <label class="onoffswitch-label" for="motor3">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
+
+    Peltier
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="peltier">
+        <label class="onoffswitch-label" for="peltier">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
+
+    Light
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="light">
+        <label class="onoffswitch-label" for="light">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
+
+    <button id="edit">Edit</button>
+    <button id="apply">Apply</button>
+    <hr></hr>
+</div>
+</br>
+<h3>Server Software Ports</h3>
+<div class="switches">
+    <hr></hr>
+</div>
+
+<h3>Ports Available</h3>
+<div class="switches">
+    <hr></hr>
+</div>
+
+<script src="/static/js/control.js"></script>
 
 {% endblock %}
 
