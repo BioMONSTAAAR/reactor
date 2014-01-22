@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <title>Rasman : the Raspberry Pi Manager</title>
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<div class=page>
-    <div class=topbar>
+<div class="page">
+    <div class="topbar">
         <h2><img src="/static/images/rasman_logo.png" height="50" align="bottom" alt="Rasman logo"></h2>
         {% if session['username'] %}
             <p align="right">Welcome {{ session['username'] }}! You can <a href="{{ url_for('logout') }}">logout</a></p>
@@ -16,8 +16,8 @@
     </div>
 
 
-    <div class=midpage>
-        <div class=sidebar>    
+    <div class="midpage">
+        <div class="sidebar">    
             <ul id="navigationMenu">
                 <li>
                     <a class="home" href="{{ url_for('home') }}">
@@ -46,7 +46,7 @@
                 </li>
             </ul>
         </div>
-        <div class=content>
+        <div class="content">
             {% block body %}{% endblock %}
         </div>
     </div>
