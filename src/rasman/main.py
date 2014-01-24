@@ -22,7 +22,6 @@ import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash, escape, jsonify, Response
 
-from flask.ext.compress import Compress
 from rasman import Rasman
 
 # configuration
@@ -300,6 +299,5 @@ def api_deleteall():
 
 if __name__ == "__main__":
     # set host to '0.0.0.0' to make the service externally available
-    Compress(app)
     app.run(debug=True, host='0.0.0.0', port=3000)
 
