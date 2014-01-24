@@ -3,28 +3,29 @@
 var History = {
     config: {
         //list determines what charts get drawn, what's on the axes, etc.
+        //keys of "series" objects should match History.config.labels
         chartList: [
             {
                 title: 'Light + Temperature',
                 labels: ['light', 'temp'],
                 series: {
-                    light: { axis: 'y' },
-                    temp: { axis: 'y2' },
+                    Light: { axis: 'y' },
+                    Temperature: { axis: 'y2' },
                 },
             },
             {
                 title: 'CO2 and pH',
                 labels: ['co2', 'ph'],
                 series: {
-                    co2: 'y',
-                    ph: 'y2',
+                    'Carbon Dioxide': {axis: 'y'},
+                    pH: {axis: 'y2'},
                 },
             },
             {
                 title: 'Water Level',
                 labels: ['h2olvl'],
                 series: {
-                    h2olvl: 'y',
+                    'Water Level': {axis: 'y'},
                 },
             },
         ],
@@ -60,6 +61,8 @@ var History = {
         var graphLabels = labels.map(function(stream){
             return History.config.labels[stream] || stream;
         });
+        console.log(graphLabels);
+        console.log(chart.series);
         var graph = new Dygraph(chartDiv, chartData, {
             title: chart.title,
             labels: graphLabels,
