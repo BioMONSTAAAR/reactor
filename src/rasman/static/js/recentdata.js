@@ -12,6 +12,10 @@ var History = {
                     Light: { axis: 'y' },
                     Temperature: { axis: 'y2' },
                 },
+                axes: {
+                    y: {valueRange: [60, 150]},
+                    y2: {valueRange: [25, 35]},
+                }
             },
             {
                 title: 'CO2 and pH',
@@ -20,12 +24,18 @@ var History = {
                     'Carbon Dioxide': {axis: 'y'},
                     pH: {axis: 'y2'},
                 },
+                axes: {
+                    y: {valueRange: [0, 0.15]},
+                    y2: {valueRange: [4, 15]},
+                }
             },
             {
                 title: 'Water Level',
                 labels: ['h2olvl'],
                 series: {
                     'Water Level': {axis: 'y'},
+                },
+                axes: {
                 },
             },
         ],
@@ -61,11 +71,10 @@ var History = {
         var graphLabels = labels.map(function(stream){
             return History.config.labels[stream] || stream;
         });
-        console.log(graphLabels);
-        console.log(chart.series);
         var graph = new Dygraph(chartDiv, chartData, {
             title: chart.title,
             labels: graphLabels,
+            axes: chart.axes,
             width: 560,
             series: chart.series,
             clickCallback: function(e, x, points){
