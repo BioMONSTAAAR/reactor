@@ -170,13 +170,14 @@ h3  { font-size: 1em; }
 }
 
 
-/* http://proto.io/freebies/onoff/ */
+/* http://proto.io/freebies/onoff/*/
 
 
 .switches {
     padding: 10px;
     position: relative;
-    width: 200px;
+    width: 450px;
+    top: 10px;
 }
 
 .onoffswitch {
@@ -245,4 +246,14 @@ h3  { font-size: 1em; }
     cursor: pointer;
     text-align: right;
     display: none;
+}
+
+.timestamp {
+    position: relative;
+    left: 200px;
+    bottom: 40px;
+    font-size: 75%;
+    color: gray;
+    width: 250px;
+    height: 5px
 }
