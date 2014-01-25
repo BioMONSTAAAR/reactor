@@ -12,6 +12,8 @@ var History = {
                     Light: { axis: 'y' },
                     Temperature: { axis: 'y2' },
                 },
+                ylabel: 'Light (lumens)',
+                y2label: 'Temperature (\u00B0 C)',
                 axes: {
                     y: {valueRange: [60, 150]},
                     y2: {valueRange: [25, 35]},
@@ -27,7 +29,9 @@ var History = {
                 axes: {
                     y: {valueRange: [0, 0.15]},
                     y2: {valueRange: [4, 15]},
-                }
+                },
+                ylabel: 'CO2 (units)',
+                y2label: 'pH',
             },
             {
                 title: 'Water Level',
@@ -37,6 +41,7 @@ var History = {
                 },
                 axes: {
                 },
+                ylabel: 'Water Level (units)',
             },
         ],
         //how to label the datastreams in the charts
@@ -75,6 +80,8 @@ var History = {
             title: chart.title,
             labels: graphLabels,
             axes: chart.axes,
+            ylabel: chart.ylabel,
+            y2label: chart.y2label || undefined,
             width: 560,
             series: chart.series,
             clickCallback: function(e, x, points){
