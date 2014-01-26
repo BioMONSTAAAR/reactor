@@ -170,8 +170,15 @@ h3  { font-size: 1em; }
 }
 
 
-/* http://proto.io/freebies/onoff/*/
+/* -------------------------------------------------------------------------- */
 
+/*
+
+    Author: Tod Kaiser
+    Date: 01/26/14;
+    Sources: http://proto.io/freebies/onoff/
+
+*/
 
 .switches {
     padding: 10px;
@@ -185,14 +192,15 @@ h3  { font-size: 1em; }
     left: 100px;
     bottom: 20px;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
-    opacity: 0;
 }
 .onoffswitch-checkbox {
     display: none;
 }
 .onoffswitch-label {
-    display: block; overflow: hidden; cursor: pointer;
-    border: 2px solid #999999; border-radius: 18px;
+    display: block;
+    overflow: hidden;
+    border: 2px solid #999999;
+    border-radius: 18px;
 }
 .onoffswitch-inner {
     width: 200%; margin-left: -100%;
@@ -239,15 +247,6 @@ h3  { font-size: 1em; }
     right: 0px; 
 }
 
-#apply {
-    position: relative;
-    left: 250px;
-    border: 1px solid #999999;
-    cursor: pointer;
-    text-align: right;
-    display: none;
-}
-
 .timestamp {
     position: relative;
     left: 200px;
@@ -256,4 +255,17 @@ h3  { font-size: 1em; }
     color: gray;
     width: 250px;
     height: 5px
+}
+
+.center-buttons {
+    text-align: center;
+}
+
+.cancel-save {
+    opacity: 0.3;
+}
+
+button {
+    border-radius: 15%;
+    padding: 0.6%;
 }
