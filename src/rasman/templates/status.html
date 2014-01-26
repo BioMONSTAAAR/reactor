@@ -1,73 +1,80 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<h3>Remote Operation Panel</h3>
+<!-- 
+    Author: Tod Kaiser
+    Date: 01/26/14
+-->
+
+<h2>Remote Operation Panel</h2>
+<br>
 <div class="switches">
+    <div class="center-buttons">
+        <button id="editButton">Edit</button>
+        <button id="cancelButton" class="cancel-save" disabled="">Cancel</button>
+        <button id="saveButton" class="cancel-save" disabled="">Save</button>
+    </div>
+<br>
+<br>
     Motor 1
     <div class="onoffswitch">
-        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="motor1">
-        <label class="onoffswitch-label" for="motor1">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled="true" id="motor1">
+        <label class="onoffswitch-label" for="motor1" title="Select 'Edit' button to toggle ON/OFF">
             <div class="onoffswitch-inner"></div>
             <div class="onoffswitch-switch"></div>
         </label>
     </div>
-    <div class="timestamp"></div>
+    <div class="timestamp">
+        <span></span>
+    </div>
 
     Motor 2
     <div class="onoffswitch">
-        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="motor2">
-        <label class="onoffswitch-label" for="motor2">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled="true" id="motor2">
+        <label class="onoffswitch-label" for="motor2" title="Select 'Edit' button to toggle ON/OFF">
             <div class="onoffswitch-inner"></div>
             <div class="onoffswitch-switch"></div>
         </label>
     </div>
-    <div class="timestamp"></div>
+    <div class="timestamp">
+        <span></span>
+    </div>
 
     Motor 3
     <div class="onoffswitch">
-        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="motor3">
-        <label class="onoffswitch-label" for="motor3">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled="true" id="motor3">
+        <label class="onoffswitch-label" for="motor3" title="Select 'Edit' button to toggle ON/OFF">
             <div class="onoffswitch-inner"></div>
             <div class="onoffswitch-switch"></div>
         </label>
     </div>
-    <div class="timestamp"></div>
+    <div class="timestamp">
+        <span></span>
+    </div>
 
     Peltier
     <div class="onoffswitch">
-        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="peltier">
-        <label class="onoffswitch-label" for="peltier">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled="true" id="peltier">
+        <label class="onoffswitch-label" for="peltier" title="Select 'Edit' button to toggle ON/OFF">
             <div class="onoffswitch-inner"></div>
             <div class="onoffswitch-switch"></div>
         </label>
     </div>
-    <div class="timestamp"></div>
+    <div class="timestamp"><span></span></div>
 
     Light
     <div class="onoffswitch">
-        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="light">
-        <label class="onoffswitch-label" for="light">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled="true" id="light">
+        <label class="onoffswitch-label" for="light" title="Select 'Edit' button to toggle ON/OFF">
             <div class="onoffswitch-inner"></div>
             <div class="onoffswitch-switch"></div>
         </label>
     </div>
-    <div class="timestamp"></div>
-
-    <button id="edit">Edit</button>
-    <button id="apply">Apply</button>
+    <div class="timestamp">
+        <span></span>
+    </div>
     <hr></hr>
-</div>
-</br>
-<h3>Server Software Ports</h3>
-<div class="switches">
-    <hr></hr>
-</div>
-
-<h3>Ports Available</h3>
-<div class="switches">
-    <hr></hr>
-</div>
-
+</div>    
 <script src="/static/js/control.js"></script>
 
 {% endblock %}
