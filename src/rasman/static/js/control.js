@@ -209,55 +209,68 @@
 
     /* -------------------------------------------------------------------------- */
 
+    function apiEndpoints(index, id) {
 
-    function switchHandler(index, url, id) {
         checkboxes[index].addEventListener("click", function () {
-            console.log(status[index]);
+
+            if (id === "motor1" || id === "motor2" || id === "motor3") {
+
+                // this is just a placeholder until API endpoint is implemented
+                url = "/api/addmeas/"; 
+
+                /*
+                    Control a motor’s speed
+                    /api/setmotor/<motorId>/<value>    (not yet implemented)
+                    Note: as of now, there is no way to alter the motor's speed, only off and on
+
+                var x = checkboxes[index].checked ? "/api/setmotor/" + id + "/1" : "/api/setmotor/" + id + "/0";
+                console.log(x);
+
+                */
+
+            }
+
+            if (id === "peltier" || id === "light") {
+
+                // this is just a placeholder until API endpoint is implemented
+                // this URL is intentionally mispelled to invoke error handling
+                url = "/api/addmea";
+
+                /*
+                    Control a Peltier or light switch
+                    /api/setswitch/<deviceId>/<value>    (not yet implemented)
+
+                var y = status[index].checked ? "/api/setmotor/" + id + "/on" : "/api/setmotor/" + id + "/off";
+                console.log(y);
+
+                */
+            }
+
             getJSON(url, id, index, successHandler, errorHandler);
         }, false);
     }
 
+    /* -------------------------------------------------------------------------- */
+
+    function switchHandler() {
+
+        for (i = 0; i < length; i += 1) {
+            //remember the previous state
+            //status[i] = checkboxes[i].checked;
+            id = checkboxes[i].id;
+
+            // call 
+            apiEndpoints(i, id);
+
+        } //for
+    }
 
     /* -------------------------------------------------------------------------- */
 
-
     // call storedState();
-    // populate UI with info from previous session, etc
+    // populate UI with info - switches and timestamps - from previous session, etc
 
     // call all all event handlers for the Edit, Cancel, and Save buttons
     buttonHandlers();
-
-    for (i = 0; i < length; i += 1) {
-        //remember the previous state
-        status[i] = checkboxes[i].checked;
-        id = checkboxes[i].id;
-
-        if (id === "motor1" || id === "motor2" || id === "motor3") {
-            url = "/api/addmeas/"; // this is just a placeholder until API endpoint is implemented
-
-            /*
-                Control a motor’s speed
-                /api/setmotor/<motorId>/<value>    (not yet implemented)
-                Note: as of now, there is no way to alter the motor's speed, only off and on
-            */
-        }
-
-
-
-        if (id === "peltier" || id === "light") {
-
-            // this is just a placeholder until API endpoint is implemented
-            // this URL is intentionally mispelled to invoke error handling...
-            url = "/api/addmea";
-
-            /*
-                Control a Peltier or light switch
-                /api/setswitch/<deviceId>/<value>    (not yet implemented)
-            */
-        }
-
-        // call 
-        switchHandler(i, url, id);
-
-    } //for
+    switchHandler();
 }());
