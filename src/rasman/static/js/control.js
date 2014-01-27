@@ -29,23 +29,22 @@
     /*
         This function stores the initial state of the UI in an array of objects 
         called "device."" The purpose is two-fold: 
-          1) To compare the changes made in the UI during user interaction with a 
-             reference point from which to alter the UI, e.g. display a new 
-             timestamp, toggle a switch value, or make an HTTP request to a 
-             specified API endpoint. 
+          1) To compare the changes (saved) made in the UI prior to and after user
+             selections to alter the UI, e.g. display a new timestamp, toggle a 
+             switch value, or make an HTTP request to a specified API endpoint. 
           2) The device object also serves as a convenient access point of commonly
-             used element properties like "id."
+             used element properties like "id" irrespective of state
     */
     function currentState() {
         for (i = 0; i < length; i += 1) {
             //preserve the initial state in an array of objects
             device[i] = {
-                "id": checkboxes[i].id,
-                "url": "",
+                "id": checkboxes[i].id, //static
+                "url": "", //dynamic
                 "index": i,
-                "clicked": false,
-                "order": checkboxes[i].checked,
-                "time": timestamp[i].textContent
+                "clicked": false, // dynamic...this will change with configure()
+                "order": checkboxes[i].checked, //dynamic
+                "time": timestamp[i].textContent //dynamic
             };
         }
     }
@@ -278,7 +277,9 @@
                 // a connection failure 
                 if (device[i].time === errorMessage) {
                     timestamp[i].textContent = "";
-                    checkboxes[i].checked = !device[i].order;
+                    if (checkboxes[i].checked !== device[i].clicked) {
+                        checkboxes[i].checked = !device[i].order; 
+                    }
                 }
                 labels[i].style.cursor = "default";
                 labels[i].title = "Select 'Edit' to toggle ON/OFF";
@@ -321,7 +322,7 @@
             // because this property is checked when a user selects the Cancel 
             // button. Without knowing this value, a switch may visually display
             // "ON" when the reality is it's turned off.
-            device[index].clicked = true;
+            checkboxes[index].clicked = true;
             // Get the relevant API endpoint
             device[index].url = getURL(index, device[index].id);
             // Ajax
@@ -346,7 +347,7 @@
     /* -------------------------------------------------------------------------- */
 
     // Populate UI with info - devices, switches and timestamps - from previous session, etc
-    // storedState();
+    // storedState(); or maybe configuration();
 
     // Cache the current state of the UI before making changes
     currentState();
