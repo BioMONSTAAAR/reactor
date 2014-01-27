@@ -206,7 +206,7 @@
             currentState();
 
             for (i = 0; i < length; i += 1) {
-                //checkboxes[i].disabled = true;
+                checkboxes[i].disabled = true;
                 if (checkboxes[i].checked === true) {
                     timestamp[i].title = "Time last turned ON";
                 } else if (checkboxes[i].checked === false) {
