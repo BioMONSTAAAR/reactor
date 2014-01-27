@@ -28,9 +28,9 @@
 
     function currentState() {
         for (i = 0; i < length; i += 1) {
-            //preserve the original state in an array of objects
+            //preserve the initial state in an array of objects
             device[i] = {
-                "id": id,
+                "id": checkboxes[i].id,
                 "url": "",
                 "index": i,
                 "clicked": false,
@@ -104,6 +104,11 @@
 
             // log timestamp on the page
             timestamp[index].textContent = date.toGMTString();
+            if (checkboxes[index].checked) {
+                timestamp[index].title = "Time last turned ON";
+            } else if (!checkboxes[index].checked) {
+                timestamp[index].title = "Time last turned OFF";
+            }
 
             // if storing in storedState(), then store "date.getTime().toString()"
             // formate in database, but output date.toGMTString()
@@ -111,7 +116,7 @@
         } else {
             console.log(data.status);
             // then call whatever code that may be needed,
-            // e.g. data.status === "ERROR"
+            // e.g. 404
 
         }
     }
@@ -122,6 +127,7 @@
         console.log("An error occurred, please try again");
         timestamp[index].textContent = errorMessage;
         timestamp[index].style.color = "red";
+        timestamp[index].title = "Error: the request failed to reach the device selected";
     }
 
     /* -------------------------------------------------------------------------- */
@@ -159,6 +165,7 @@
                 checkboxes[i].disabled = false;
                 labels[i].style.cursor = "pointer";
                 labels[i].title = "Click switch to turn ON/OFF";
+                device[i].clicked = false;
             }
 
         }, false);
@@ -177,15 +184,21 @@
             buttonStyles(styles);
 
             for (i = 0; i < length; i += 1) {
+
+                if (device[i].clicked && timestamp[i].textContent !== errorMessage) {
+                    device[i].url = getURL(i, device[i].id);
+                    getJSON(device[i], successHandler, errorHandler);
+                }
+
                 checkboxes[i].checked = device[i].check;
                 timestamp[i].textContent = device[i].time;
                 checkboxes[i].disabled = true;
                 labels[i].style.cursor = "default";
                 labels[i].title = "Select 'Edit' to toggle ON/OFF";
 
-                if (device[i].clicked && timestamp[i].textContent.value) {
-                    device[i].url = getURL(i, device[i].id);
-                    getJSON(device[i], successHandler, errorHandler);
+                if (timestamp[i].textContent === errorMessage) {
+                    timestamp[i].textContent = "";
+                    checkboxes[i].checked = !device[i].check;
                 }
             }
         }, false);
@@ -207,12 +220,8 @@
 
             for (i = 0; i < length; i += 1) {
                 checkboxes[i].disabled = true;
-                if (checkboxes[i].checked === true) {
-                    timestamp[i].title = "Time last turned ON";
-                } else if (checkboxes[i].checked === false) {
-                    timestamp[i].title = "Time last turned OFF";
-                }
-                if (timestamp[i].textContent.value) {
+
+                if (device[i].time === errorMessage) {
                     timestamp[i].textContent = "";
                     checkboxes[i].checked = !device[i].check;
                 }
@@ -255,7 +264,6 @@
     /* -------------------------------------------------------------------------- */
 
     function switchHandler() {
-
         for (i = 0; i < length; i += 1) {
             id = checkboxes[i].id;
             // call 
