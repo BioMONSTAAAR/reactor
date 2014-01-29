@@ -248,12 +248,48 @@ def deleteall():
     return setup()
 
 ###############################################################################
-#    Web services - used by cron job
+#    Web services
 ###############################################################################
 
+config = DEFAULT_CONFIG
+_gRasman = Rasman(config)       # @todo: remove global variable
+
+    
 def _convert_jsondata_to_csv(jsonstring, sensors):
     data = json.loads(jsonstring)        
     return ",".join( [str(data.get(s) or '') for s in sensors] )
+
+
+@app.route("/api/init/")
+def api_init():
+    """Initialize the Arduino"""
+    app.logger.info("API: initializing the Arduino...")
+    st = _gRasman.initialize_controller()
+    return jsonify(status=st)
+
+@app.route("/api/addmeas/")
+def api_addmeas():
+    """Read the current sensor measurements and insert to the database"""
+    app.logger.info("API: adding current sensor measurements to the database...")
+    meas = _gRasman.read_all_sensors()
+    save_measurement(config['controller_id'], json.dumps(meas))
+    return jsonify(status='OK', meas=meas)
+
+@app.route("/api/setmotor/<id>/<value>")
+def api_setmotor(id, value):
+    """Control a motor's speed"""
+    app.logger.info("API: control a motor's speed...")
+    st = _gRasman.setmotor(id, value)
+    return jsonify(status=st)
+
+@app.route("/api/setswitch/<id>/<value>")
+def api_setswitch(id, value):
+    """Control a Peltier or light switch"""
+    app.logger.info("API: control a Peltier or light switch...")
+    st = _gRasman.setswitch(id, value)
+    return jsonify(status=st)
+
+
     
 @app.route("/api/history/")
 def api_history():
@@ -264,16 +300,6 @@ def api_history():
     meas_processed = [[unixify(x[0]), json.loads(x[1])] for x in meas]
     response_string = json.dumps(meas_processed).lower() 
     return Response(response=response_string, status=200, mimetype='application/json')
-
-@app.route("/api/addmeas/")
-def api_addmeas():
-    """Read the current sensor measurements and insert to the database"""
-    app.logger.info("API: adding current sensor measurements to the database...")
-    config = DEFAULT_CONFIG
-    ras = Rasman(config)
-    meas = ras.read_all_sensors()
-    save_measurement(config['controller_id'], json.dumps(meas))
-    return jsonify(status='OK', meas=meas)
 
 @app.route("/api/upload/")
 def api_upload():
