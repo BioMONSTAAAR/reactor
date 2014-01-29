@@ -2,35 +2,28 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<script src="/static/js/jquery.min.js"></script>
-<script src="/static/js/lodash.min.js"></script>
-<script src="/static/js/dygraph-combined.js"></script>
-<script src="/static/js/moment.min.js"></script>
+<script src="/static/js/libs.js"></script>
 
 <div id="plots">
 </div>
-
 <script id="streamSummary" type="text/template">
+    <h3><%= title %></h3>
     <table class="summaryTable">
         <tr>
             <td>Mean</td>
             <td><%= mean.toFixed(2) %> &plusmn; <%= stdDev.toFixed(2) %></td>
-            <td>(no timestamp)</td>
         </tr>
         <tr>
             <td>Median</td>
             <td><%= median.value %></td>
-            <td><%= moment(median.time).format('MM/DD/YY, HH:mm:ss') %></td>
         </tr>
         <tr>
             <td>Minimum</td>
             <td><%= min.value %></td>
-            <td><%= moment(min.time).format('MM/DD/YY, HH:mm:ss') %></td>
         </tr>
         <tr>
             <td>Maximum</td>
             <td><%= max.value %></td>
-            <td><%= moment(max.time).format('MM/DD/YY, HH:mm:ss') %></td>
         </tr>
 
     </table>

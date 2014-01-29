@@ -13,13 +13,14 @@ License as published by the Free Software Foundation
 """
 
 from datetime import datetime
+import calendar
 import json
 import os
 import re
 import sqlite3
 
 from flask import Flask, request, session, g, redirect, url_for, \
-     abort, render_template, flash, escape, jsonify
+     abort, render_template, flash, escape, jsonify, Response
 
 from rasman import Rasman
 
@@ -104,7 +105,7 @@ def get_saved_measurements(limit=25, controller_id=None, for_upload=False):
         if controller_id:
             cmd += " WHERE controller_id = ?"
             qvalues.append(controller_id)
-    cmd += " ORDER BY timestamp DESC"
+    cmd += " ORDER BY timestamp ASC"
     if limit:
         cmd += " LIMIT ?"
         qvalues.append(limit)
@@ -258,13 +259,11 @@ def _convert_jsondata_to_csv(jsonstring, sensors):
 def api_history():
     sensors = DEFAULT_CONFIG['sensors']
     meas = get_saved_measurements(limit=12*24*2, for_upload=True)   # 2-day graph
-    headers = 'Timestamp,' + ','.join(sensors) + '\n'
-    mycsv = headers
-    for m in meas:
-        timestamp,jsonstring = m
-        timestamp = re.sub(r'\.\d\d\d$', '', timestamp)     # remove millisecs 
-        mycsv += "%s,%s\n" % (timestamp, _convert_jsondata_to_csv(jsonstring, sensors))
-    return mycsv
+    #i am sorry
+    unixify = lambda x: (1000 * calendar.timegm(datetime.strptime(x[0:19], "%Y-%m-%d %H:%M:%S").timetuple())) + int(x[20:])
+    meas_processed = [[unixify(x[0]), json.loads(x[1])] for x in meas]
+    response_string = json.dumps(meas_processed).lower() 
+    return Response(response=response_string, status=200, mimetype='application/json')
 
 @app.route("/api/addmeas/")
 def api_addmeas():
@@ -300,4 +299,5 @@ def api_deleteall():
 
 if __name__ == "__main__":
     # set host to '0.0.0.0' to make the service externally available
-    app.run(debug=False, host='0.0.0.0', port=3000)
+    app.run(debug=True, host='0.0.0.0', port=3000)
+

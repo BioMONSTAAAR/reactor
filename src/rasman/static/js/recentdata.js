@@ -1,71 +1,174 @@
-//global object containing data from CSV; namespace for helper functions
+'use strict';
+//global data, namespace for helper functions
 var History = {
     config: {
-        chartTitles: {
-            TEMP: 'Temperature (\u00b0C)',
-            CO2:  'Carbon Dioxide',
-            H20LVL:  'Water Level',
-            PH:  'pH',
-            LIGHT: 'Light',
+        //list determines what charts get drawn, what's on the axes, etc.
+        //keys of "series" objects should match History.config.labels
+        chartList: [
+            {
+                title: 'Light + Temperature',
+                labels: ['light', 'temp'],
+                series: {
+                    Light: { axis: 'y' },
+                    Temperature: { axis: 'y2' },
+                },
+                ylabel: 'Light (lumens)',
+                y2label: 'Temperature (\u00B0 C)',
+                axes: {
+                    y: {valueRange: [60, 150]},
+                    y2: {valueRange: [25, 35]},
+                }
+            },
+            {
+                title: 'CO2 and pH',
+                labels: ['co2', 'ph'],
+                series: {
+                    'Carbon Dioxide': {axis: 'y'},
+                    pH: {axis: 'y2'},
+                },
+                axes: {
+                    y: {valueRange: [0, 0.15]},
+                    y2: {valueRange: [4, 15]},
+                },
+                ylabel: 'CO2 (units)',
+                y2label: 'pH',
+            },
+            {
+                title: 'Water Level',
+                labels: ['h2olvl'],
+                series: {
+                    'Water Level': {axis: 'y'},
+                },
+                axes: {
+                },
+                ylabel: 'Water Level (units)',
+            },
+        ],
+        //how to label the datastreams in the charts
+        labels: {
+            time: 'Timestamp',
+            ph: 'pH',
+            light: 'Light',
+            h2olvl: 'Water Level',
+            temp: 'Temperature',
+            co2: 'Carbon Dioxide',
+            reverse: {},//used by click handler.  populated dynamically.
         },
     },
-    render: function render(label, target){
+    //keep references to each graph in case they need to be modified later
+    graphs: [],
+    //no reason to compute summaries twice if the history data isn't updated live
+    summaries: {},
+    render: function render(chart, target){
+        //'chart' argument is entry in this.config.chartList
+        var labels = ['time'].concat(chart.labels);
+        var chartData = History.timeSeries.apply(undefined, labels);
+
         var chartWrapper = document.createElement('div');
-        chartWrapper.id = label + 'Container';
         chartWrapper.classList.add('chartContainer');
 
         var chartDiv = document.createElement('div');
-        chartDiv.id = label + 'Chart';
         chartDiv.classList.add('chart');
 
         chartWrapper.appendChild(chartDiv);
         target.appendChild(chartWrapper);
 
-        var graph = new Dygraph(chartDiv, History.makeCSV(label), {
-            title: History.config.chartTitles[label],
-            width: 560,
-            stackedGraph: false,
-            labelsSeparateLines: true,
+        var graphLabels = labels.map(function(stream){
+            return History.config.labels[stream] || stream;
         });
+        var graph = new Dygraph(chartDiv, chartData, {
+            title: chart.title,
+            labels: graphLabels,
+            axes: chart.axes,
+            ylabel: chart.ylabel,
+            y2label: chart.y2label || undefined,
+            width: 560,
+            series: chart.series,
+            clickCallback: function(e, x, points){
+                //create reverse lookup table, because information about 
+                //nearest points are given like "Water Level" rather than "h20lvl"
+                var config = History.config;
+                if (_.size(config.labels.reverse) == 0){
+                    var streams = Object.keys(config.labels);
+                    streams.forEach(function(label){
+                        if (label !== 'reverse'){
+                            var key = config.labels[label] || label;
+                            config.labels.reverse[key] = label;
+                        };
+                    });
+                };
 
+                var clickY = e.pageY - $(e.target).offset().top;
+                var closestPoint = _.min(points, function(pt){
+                    return Math.abs(clickY - pt.canvasy);
+                });
+                var nearestStream = config.labels.reverse[closestPoint.name] || closestPoint.name;
+
+                if (graph.currentTable !== nearestStream){
+                    //update table if necessary
+                    var divToUpdate = chartWrapper.querySelector('.tableContainer');
+                    divToUpdate.innerHTML = History.table(History.summarize(nearestStream));
+                    graph.currentTable = nearestStream;
+                };
+            },
+            /* docs say this only applies for csv data, but including this fixed
+               my problem with annotations */
+            xValueParser: function(date){
+                return new Date(date).getTime();
+            }, 
+        });
+        graph.currentTable = chart.labels[0];
         var tableDiv = document.createElement('div');
         tableDiv.classList.add('tableContainer');
-        tableDiv.innerHTML = this.table(this.summarize(label));
-        
+        tableDiv.id = graph.currentTable + 'TableContainer';
+        tableDiv.innerHTML = History.table(History.summarize(graph.currentTable));
         chartWrapper.appendChild(tableDiv);
+
+        History.graphs.push(graph);
     },
-    makeCSV: function makeCSV(listOfHeaders){
-        //takes a variable number of arguments
+    table: _.template($('#streamSummary').text()),
+    timeSeries: function timeSeries(listOfHeaders){
+        //takes a variable number of arguments, in case it's ever needed
+        //assumes first argument can be parsed by Date
         var headers = Array.prototype.slice.call(arguments);
-        //hardcoding the assumption that time is always the x axis
-        headers.unshift('Timestamp');
-        var that = this;
         var headersValid = headers.every(function(header){
             //ie, there's non-empty list of points to go with that header
-            return !!that[header];
+            return !!History[header];
         });
         if (!headersValid){
-            throw "Cannot generate CSV for nonexistent data stream.";
+            console.log(headers);
+            throw "Cannot produce time series for nonexistent data stream.";
         };
-
-        var lines = [headers.join(',')];
-        for (var i = 0; i<this.Timestamp.length; i++){
-            var data = [];
-            for (var k = 0; k<headers.length; k++){
-                data.push(this[headers[k]][i]);
+        var series = [];
+        for (var i = 0; i<History.time.length; i++){
+            var tuple = [];
+            for (var h = 0; h<headers.length; h++){
+                var value = History[headers[h]][i];
+                tuple.push(value);
             };
-            lines.push(data.join(','));
+            tuple[0] = new Date(tuple[0]);
+            series.push(tuple);
         };
-        return lines.join('\n');
+        return series;
     },
     summarize: function summarize(label){
-        //provides object to feed to 'streamSummary' template for tables
-        if (!this[label]){
-            throw "Cannot summarize nonexistent data stream.";
+        label = label.toLowerCase();
+        if (!History[label]){
+            throw "Cannot summarize nonexistent data stream " + label;
         };
-        var tuples = _.zip(this['Timestamp'], this[label]);
-        tuples = tuples.sort(function(a,b){
-            return a[1] <= b[1]?-1:1;
+        if (History.summaries[label]){
+            //take advantage of cache
+            return History.summaries[label];
+        };
+
+        //"schwartzian transform"
+        var tuples = _.zip(History.time, History[label]);
+        tuples.sort(function(a,b){
+            if (a[1] === b[1]){
+                return 0;
+            } else {
+                return a[1] < b[1]?-1:1;
+            };
         });
         var min = {
             time: tuples[0][0],
@@ -80,55 +183,54 @@ var History = {
             time: tuples[medianIndex][0],
             value: tuples[medianIndex][1],
         };
-        var total = this[label].reduce(function(a,b){
+        var total = History[label].reduce(function(a,b){
             return a + b;
         }, 0);
-        var mean = total/this[label].length;
-        var sumSquares = this[label].map(function(x){
-            return Math.pow(x - mean, 2)}).
-            reduce(function(a,b){return a+b;}, 0);
-        var stdDev = Math.sqrt(sumSquares/this[label].length);
-
-        return {
+        var mean = total/History[label].length;
+        var sumSquares = History[label].
+            map(function(x){
+                return Math.pow(x - mean, 2);
+            }).
+            reduce(function(a,b){ return a+b;},
+            0);
+        var stdDev = Math.sqrt(sumSquares/History[label].length);
+        
+        var result = {
+            title: History.config.labels[label] || label,
             min: min,
             max: max,
             median: median,
             mean: mean,
             stdDev: stdDev,
         };
+        //cache it
+        History.summaries[label] = result;
+
+        return result;
     },
-    table: _.template($('#streamSummary').text()),
 };
 
 (function main(){
-    var getCSV = $.get('/api/history/', function processCSV(data){
-        var lines = data.split(/\n+/).filter(function(x){
-            return /^[-\w]/.test(x);//avoid blank lines, allow negative numbers
+    var getCSV = $.get('/api/history/', function handleRawData(data){
+        /* POPULATE HISTORY OBJECT */
+        //data comes from the server in chronological order
+        History.time =_.pluck(data, '0');
+        var headers = Object.keys(data[0][1]);//first one chosen arbitrarily
+        headers.forEach(function(header){
+            History[header] = [];
         });
-        var headers = lines.shift();
-        var labels = headers.split(/,/);
-        labels.forEach(function(label){
-            History[label] = [];
-        });
-        for (var i = 0; i<lines.length; i++){
-            var items = lines[i].split(/,/);
-            if (items.length != labels.length){
-                throw "malformed CSV file";
-            };
-            for (var k = 0; k<items.length; k++){
-                var item = items[k];
-                var label = labels[k];
-                if (label !== 'Timestamp'){
-                    item = parseFloat(item);
-                };
-                History[label].push(item);
-            };
+
+        for (var i = 0; i<History.time.length; i++){
+            headers.forEach(function(header){
+                var value = data[i][1][header]
+                History[header].push(value);
+            });
         };
-    
+
+        /* DRAW PLOTS */
         var plots = document.getElementById('plots');
-        for (var i = 1; i<labels.length; i++){
-            //timestamp always included implicitly
-            History.render(labels[i], plots);
+        for (var i = 0; i<History.config.chartList.length; i++){
+            History.render(History.config.chartList[i], plots);
         };
     });
     

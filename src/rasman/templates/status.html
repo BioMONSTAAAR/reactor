@@ -1,63 +1,81 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<h2>Bioreactor Status</h2>
-<br/>
-<p><b>{{ config['controller_id'] }}</b></p>
-{% if timestamp %}
-    <p>Measured on {{ timestamp }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    {% if uploaded %}
-        <p style="color:green">UPLOADED</p>
-    {% else %}
-        <p style="color:red">NOT UPLOADED</p>
-    {% endif %}
-    </p>
-    <br/>
-{% endif %}
-{% for message in get_flashed_messages() %}
-    <div class=flash>{{ message }}</div>
-{% endfor %}
-<br/>
+<!-- 
+    Author: Tod Kaiser
+    Date: 01/26/14
+-->
 
+<h2>Remote Operation Panel</h2>
+<br>
+<div class="switches">
+    <div class="center-buttons">
+        <button id="editButton">Edit</button>
+        <button id="cancelButton" class="cancel-save" disabled="">Cancel</button>
+        <button id="saveButton" class="cancel-save" disabled="">Save</button>
+    </div>
+<br>
+<br>
+    Motor 1
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled="true" id="motor1">
+        <label class="onoffswitch-label" for="motor1" title="Select 'Edit' button to toggle ON/OFF">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
+    <div class="timestamp">
+        <span></span>
+    </div>
 
-<table border="1" width="60%" style="float:center">
-    <tr>
-        <th>Sensors</th>
-        <th>Value</th>
-        <th>Units</th>
-    </tr>
-    {% for sensor in config['sensors'] %}
-        <tr>
-            <td> {{ config['labels'][loop.index -1] }} </td>
-            <td> {{ data[sensor] }} </td>
-            <td> {{ config['units'][loop.index - 1] }} </td>
-        </tr>
-    {% endfor %}
-</table>
+    Motor 2
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled="true" id="motor2">
+        <label class="onoffswitch-label" for="motor2" title="Select 'Edit' button to toggle ON/OFF">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
+    <div class="timestamp">
+        <span></span>
+    </div>
 
-<br/>
-<table border="1" width="60%" style="float:center">
-    <tr>
-        <th>Motor Pumps</th>
-        <th>Status</th>
-        <th>Last Active</th>
-    </tr>
-    <tr>
-        <td>Mixer</td>
-        <td>on</td>
-        <td>running</td>
-    </tr>
-    <tr>
-        <td>Nutrient Feed</td>
-        <td>off</td>
-        <td>47 minutes ago</td>
-    </tr>
-    <tr>
-        <td>Harvester</td>
-        <td>off</td>
-        <td>3 hours ago</td>
-    </tr>
-</table>
+    Motor 3
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled="true" id="motor3">
+        <label class="onoffswitch-label" for="motor3" title="Select 'Edit' button to toggle ON/OFF">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
+    <div class="timestamp">
+        <span></span>
+    </div>
+
+    Peltier
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled="true" id="peltier">
+        <label class="onoffswitch-label" for="peltier" title="Select 'Edit' button to toggle ON/OFF">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
+    <div class="timestamp"><span></span></div>
+
+    Light
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled="true" id="light">
+        <label class="onoffswitch-label" for="light" title="Select 'Edit' button to toggle ON/OFF">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
+    <div class="timestamp">
+        <span></span>
+    </div>
+    <hr></hr>
+</div>    
+<script src="/static/js/control.js"></script>
 
 {% endblock %}
 
