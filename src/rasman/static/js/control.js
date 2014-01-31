@@ -83,7 +83,7 @@
             // Control a motor’s speed
             // /api/setmotor/<motorId>/<value>
             // Note: as of now, there is no way to alter the motor's speed, only off and on
-            url = checkboxes[index].checked 
+            url = checkboxes[index].checked
                 ? "/api/setmotor/" + id + "/1" : "/api/setmotor/" + id + "/0";
             console.log(url);
         }
