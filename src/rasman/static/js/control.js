@@ -44,7 +44,7 @@
                 "index": i,
                 "clicked": false, // dynamic...this will change with configure()
                 "order": checkboxes[i].checked, //dynamic
-                "time": timestamp[i].textContent //dynamic
+                "time": timestamp[i].textContent.trim() //dynamic
             };
         }
     }
@@ -189,6 +189,9 @@
     function editButton() {
         edit.addEventListener("click", function () {
 
+            // Cache the current state of the UI
+            currentState();
+
             // The "style" object contains the CSS properties that will be needed
             // to stlyize the buttons and switches in reponse to user actions.
             styles = {
@@ -277,8 +280,9 @@
                 // a connection failure 
                 if (device[i].time === errorMessage) {
                     timestamp[i].textContent = "";
+                    device[i].time = "";
                     if (checkboxes[i].checked !== device[i].clicked) {
-                        checkboxes[i].checked = !device[i].order; 
+                        checkboxes[i].checked = !device[i].order;
                     }
                 }
                 labels[i].style.cursor = "default";
