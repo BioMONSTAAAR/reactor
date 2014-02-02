@@ -89,8 +89,8 @@
         }
         //Control a Peltier or light switch
         // /api/setswitch/<deviceId>/<value>
-        if (id === "peltier" || id === "light") {
-            url = checkboxes[index].checked ? "/api/setmotor/" + id + "/on" : "/api/setmotor/" + id + "/off";
+        if (id === "peltier1" || id === "light1") {
+            url = checkboxes[index].checked ? "/api/setswitch/" + id + "/1" : "/api/setswitch/" + id + "/0";
             console.log(url);
         }
         return url;
