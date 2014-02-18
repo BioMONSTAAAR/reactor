@@ -44,7 +44,7 @@
                 "index": i,
                 "clicked": false, // dynamic...this will change with configure()
                 "order": checkboxes[i].checked, //dynamic
-                "time": timestamp[i].textContent //dynamic
+                "time": timestamp[i].textContent.trim() //dynamic
             };
         }
     }
@@ -80,35 +80,18 @@
     */
     function getURL(index, id) {
         if (id === "motor1" || id === "motor2" || id === "motor3") {
-            // this is just a placeholder until API endpoint is implemented
-            url = "/api/addmeas/";
-
-            /*
-                Control a motor’s speed
-                /api/setmotor/<motorId>/<value>    (not yet implemented)
-                Note: as of now, there is no way to alter the motor's speed, only off and on
-
-            */
-
-            // Below logs the API Endpoint that will be called once implemented
-            var x = checkboxes[index].checked ? "/api/setmotor/" + id + "/1" : "/api/setmotor/" + id + "/0";
-            console.log(x);
+            // Control a motor’s speed
+            // /api/setmotor/<motorId>/<value>
+            // Note: as of now, there is no way to alter the motor's speed, only off and on
+            url = checkboxes[index].checked
+                ? "/api/setmotor/" + id + "/1" : "/api/setmotor/" + id + "/0";
+            console.log(url);
         }
-
-        if (id === "peltier" || id === "light") {
-            // this is just a placeholder until API endpoint is implemented
-            // this URL is intentionally mispelled to invoke error handling
-            url = "/api/addmea";
-
-            /*
-                Control a Peltier or light switch
-                /api/setswitch/<deviceId>/<value>    (not yet implemented)
-
-            */
-
-            // Below logs the API Endpoint that will be called once implemented
-            var y = checkboxes[index].checked ? "/api/setmotor/" + id + "/on" : "/api/setmotor/" + id + "/off";
-            console.log(y);
+        //Control a Peltier or light switch
+        // /api/setswitch/<deviceId>/<value>
+        if (id === "peltier1" || id === "light1") {
+            url = checkboxes[index].checked ? "/api/setswitch/" + id + "/1" : "/api/setswitch/" + id + "/0";
+            console.log(url);
         }
         return url;
     }
@@ -188,6 +171,9 @@
     */
     function editButton() {
         edit.addEventListener("click", function () {
+
+            // Cache the current state of the UI
+            currentState();
 
             // The "style" object contains the CSS properties that will be needed
             // to stlyize the buttons and switches in reponse to user actions.
@@ -277,8 +263,9 @@
                 // a connection failure 
                 if (device[i].time === errorMessage) {
                     timestamp[i].textContent = "";
+                    device[i].time = "";
                     if (checkboxes[i].checked !== device[i].clicked) {
-                        checkboxes[i].checked = !device[i].order; 
+                        checkboxes[i].checked = !device[i].order;
                     }
                 }
                 labels[i].style.cursor = "default";
